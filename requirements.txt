@@ -1,0 +1,7 @@
+torch>=2.0
+numpy
+scipy
+pandas
+scikit-learn
+tqdm
+transformers

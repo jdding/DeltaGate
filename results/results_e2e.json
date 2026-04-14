@@ -1,0 +1,69 @@
+{
+  "timeconcat_e2e": {
+    "description": "TimeConcat E2E (5-seed avg, Video Games)",
+    "seeds": [42, 123, 456, 789, 1024],
+    "per_seed": {
+      "42": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0788, "epochs": 20},
+      "123": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0774, "epochs": 22},
+      "456": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0821, "epochs": 22},
+      "789": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0789, "epochs": 19},
+      "1024": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0814, "epochs": 22}
+    },
+    "avg_5seed": {
+      "short": 0.2334,
+      "30-90d": 0.1215,
+      "90-180d": 0.1152,
+      "180-365d": 0.1087,
+      ">365d": 0.0797
+    }
+  },
+  "deltagate_e2e": {
+    "description": "DeltaGate E2E (5-seed avg, Video Games)",
+    "seeds": [42, 123, 456, 789, 1024],
+    "per_seed": {
+      "42": {"short": 0.2078, "30-90d": 0.1156, "90-180d": 0.1089, "180-365d": 0.0999, ">365d": 0.0544, "epochs": 25},
+      "123": {"short": 0.2124, "30-90d": 0.1164, "90-180d": 0.1116, "180-365d": 0.1026, ">365d": 0.0554, "epochs": 28},
+      "456": {"short": 0.2084, "30-90d": 0.1177, "90-180d": 0.1069, "180-365d": 0.0931, ">365d": 0.0548, "epochs": 25},
+      "789": {"short": 0.2118, "30-90d": 0.1191, "90-180d": 0.1110, "180-365d": 0.1045, ">365d": 0.0632, "epochs": 27},
+      "1024": {"short": 0.2058, "30-90d": 0.1158, "90-180d": 0.1085, "180-365d": 0.0988, ">365d": 0.0578, "epochs": 23}
+    },
+    "avg_5seed": {
+      "short": 0.2092,
+      "30-90d": 0.1169,
+      "90-180d": 0.1094,
+      "180-365d": 0.0998,
+      ">365d": 0.0571
+    }
+  },
+  "backbone_drift": {
+    "description": "L2 distance from original SASRec checkpoint",
+    "original_backbone_norm": 87.9009,
+    "timeconcat": {
+      "42": {"l2": 107.9503, "relative_pct": 122.81},
+      "123": {"l2": 113.6568, "relative_pct": 129.30},
+      "456": {"l2": 107.4388, "relative_pct": 122.23},
+      "789": {"l2": 107.9884, "relative_pct": 122.85},
+      "1024": {"l2": 106.1384, "relative_pct": 120.75},
+      "avg": {"l2": 108.6345, "relative_pct": 123.09}
+    },
+    "deltagate": {
+      "42": {"l2": 80.8435, "relative_pct": 91.97},
+      "123": {"l2": 92.0901, "relative_pct": 104.77},
+      "456": {"l2": 91.8511, "relative_pct": 104.49},
+      "789": {"l2": 92.0188, "relative_pct": 104.68},
+      "1024": {"l2": 91.7631, "relative_pct": 104.39},
+      "avg": {"l2": 89.7133, "relative_pct": 102.06}
+    }
+  },
+  "gate_entropy": {
+    "description": "DeltaGate E2E gate distribution by bucket (seed=789, 10K samples)",
+    "per_bucket": {
+      "short (<30d)": {"n": 4933, "mean_g": 0.8000, "std_g": 0.3839, "frac_closed": 0.173, "frac_open": 0.772},
+      "30-90d": {"n": 1024, "mean_g": 0.8210, "std_g": 0.3691, "frac_closed": 0.155, "frac_open": 0.797},
+      "90-180d": {"n": 915, "mean_g": 0.8264, "std_g": 0.3641, "frac_closed": 0.150, "frac_open": 0.802},
+      "180-365d": {"n": 1064, "mean_g": 0.8298, "std_g": 0.3621, "frac_closed": 0.148, "frac_open": 0.807},
+      ">365d": {"n": 2064, "mean_g": 0.8356, "std_g": 0.3603, "frac_closed": 0.148, "frac_open": 0.819}
+    },
+    "note": "Gate value INCREASES with Δt (opposite of expected dimension shutdown)"
+  }
+}
