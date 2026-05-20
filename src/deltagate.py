@@ -12,8 +12,6 @@ Differentiation from TiSASRec:
 - TiSASRec models intra-sequence time intervals
 - We model the single massive gap AFTER the sequence ends
 - Explicit prior fallback when historical confidence collapses
-
-SANITIZED: Fixed padding mask and left-padding last-item extraction bugs.
 """
 
 import torch
@@ -26,8 +24,8 @@ class DeltaGateSASRec(nn.Module):
     Transformer internals use standard absolute positional encoding.
     NO time injection inside Transformer (keeps ablation clean).
 
-    SANITIZED VERSION:
-    - Uses src_key_padding_mask for padding tokens
+    Implementation notes:
+    - Uses a causal Transformer backbone.
     - Extracts TRUE last valid hidden state for left-padding (index -1)
 
     ABLATION SUPPORT:
@@ -115,7 +113,7 @@ class DeltaGateSASRec(nn.Module):
 
     def forward(self, seq: torch.Tensor, delta_t: torch.Tensor):
         """
-        Forward pass with SANITIZED extraction.
+        Forward pass with left-padding-aware extraction.
 
         Args:
             seq: [batch_size, seq_len] item sequence indices (1-indexed, 0 = padding)
@@ -182,7 +180,7 @@ class DeltaGateGRU4Rec(nn.Module):
     """
     GRU4Rec backbone + Delta-Gate at output layer.
 
-    SANITIZED VERSION:
+    Implementation notes:
     - Extracts TRUE last valid hidden state for left-padding (index -1)
     """
 
@@ -224,7 +222,7 @@ class DeltaGateGRU4Rec(nn.Module):
 
     def forward(self, seq: torch.Tensor, delta_t: torch.Tensor):
         """
-        Forward pass with SANITIZED extraction.
+        Forward pass with left-padding-aware extraction.
 
         Args:
             seq: [B, L] item sequence indices
@@ -270,7 +268,7 @@ class DeltaGateGRU4Rec(nn.Module):
 class SASRecBaseline(nn.Module):
     """
     Pure SASRec Baseline (NO DeltaGate).
-    SANITIZED VERSION with proper padding mask and left-padding extraction.
+    Uses padding masks and left-padding-aware extraction.
     """
 
     def __init__(
@@ -314,10 +312,10 @@ class SASRecBaseline(nn.Module):
         x = item_emb + self.position_embedding(positions)
         x = self.dropout(x)
 
-        # 1. Causal Mask: 阻止看未来
+        # 1. Causal mask: prevent attending to future positions.
         causal_mask = torch.triu(torch.ones(seq_len, seq_len, device=seq.device), diagonal=1).bool()
 
-        # 2. Padding Mask: 阻止看过去的 Padding 零向量
+        # 2. Padding mask: prevent attending to padded positions.
         key_padding_mask = (seq == 0)  # [B, L]
 
         # 3. Transformer with dual mask
@@ -336,7 +334,7 @@ class SASRecBaseline(nn.Module):
 class GRU4RecBaseline(nn.Module):
     """
     Pure GRU4Rec Baseline (NO DeltaGate).
-    SANITIZED VERSION with proper left-padding extraction.
+    Uses left-padding-aware extraction.
     """
 
     def __init__(
@@ -376,7 +374,7 @@ class GRU4RecBaseline(nn.Module):
 
 
 if __name__ == '__main__':
-    print("Testing SANITIZED models...")
+    print("Testing DeltaGate models...")
 
     seq = torch.randint(1, 1001, (4, 50))
     delta_t = torch.tensor([30.0, 180.0, 400.0, 730.0])
@@ -404,5 +402,4 @@ if __name__ == '__main__':
     logits = model_gru_base(seq)
     print(f"  Output: {logits.shape}")
 
-    print("\n✅ All SANITIZED tests passed!")
-    
+    print("\nAll model smoke tests passed.")

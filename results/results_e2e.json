@@ -64,6 +64,6 @@
       "180-365d": {"n": 1064, "mean_g": 0.8298, "std_g": 0.3621, "frac_closed": 0.148, "frac_open": 0.807},
       ">365d": {"n": 2064, "mean_g": 0.8356, "std_g": 0.3603, "frac_closed": 0.148, "frac_open": 0.819}
     },
-    "note": "Gate value INCREASES with Δt (opposite of expected dimension shutdown)"
+    "note": "Gate value increases with delta_t in this E2E setting."
   }
 }

@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 """
-TiSASRec Implementation (TRUE Algorithm with Padding-Safe Time Matrices)
-=========================================================================
+TiSASRec Implementation with Padding-Safe Time Matrices
+=======================================================
 
 Time Interval-aware Self-Attentive Sequential Recommendation
 Reference: TiSASRec (Time Interval Aware Self-Attention for Sequential Recommendation)
 
-CRITICAL FIX: This is the GENUINE TiSASRec algorithm with:
+The implementation includes:
 1. Time relation matrix R[i][j] = |interval_i - interval_j|
 2. Time relation embeddings added to attention weights
-3. PADDING-SAFE masking to prevent time matrix explosion from zero-padding
+3. Padding-safe masking to avoid numerical issues from zero-padding
 
 """
-"""
-
 import torch
 import torch.nn as nn
 import math
@@ -21,7 +19,7 @@ import math
 
 class TiSASRec(nn.Module):
     """
-    TRUE TiSASRec with Time Relation Matrix and Padding-Safe Masking.
+    TiSASRec with time relation matrices and padding-safe masking.
 
     Key Components:
     1. Item embedding + Position embedding + Time interval embedding
@@ -116,14 +114,14 @@ class TiSASRec(nn.Module):
         """
         Compute the time relation matrix R[i][j] = |interval_i - interval_j|.
 
-        CRITICAL: Padding-Safe Implementation
+        Padding-safe implementation:
         - For padding positions, we set intervals to a special value
         - The padding_mask ensures these positions are ignored in attention
 
         Args:
-            intra_intervals: [B, L] time intervals between consecutive items
-                            intra_intervals[b][i] = gap from item[i-1] to item[i]
-                            intra_intervals[b][0] = 0 (first item has no predecessor)
+            intra_intervals: [B, L] time intervals between consecutive items.
+                intra_intervals[b][i] = gap from item[i-1] to item[i].
+                intra_intervals[b][0] = 0 (first item has no predecessor).
             padding_mask: [B, L] bool tensor, True = padding position
 
         Returns:
@@ -156,13 +154,13 @@ class TiSASRec(nn.Module):
         intra_intervals: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Forward pass with TRUE TiSASRec time-aware attention.
+        Forward pass with TiSASRec time-aware attention.
 
         Args:
             seq: [B, L] item sequence indices (1-indexed, 0 = padding)
-            intra_intervals: [B, L] time intervals between consecutive items
-                           intra_intervals[b][i] = gap from item[i-1] to item[i]
-                           intra_intervals[b][0] = 0 (first item)
+            intra_intervals: [B, L] time intervals between consecutive items.
+                intra_intervals[b][i] = gap from item[i-1] to item[i].
+                intra_intervals[b][0] = 0 (first item).
 
         Returns:
             logits: [B, item_num] scores over all items
@@ -300,7 +298,7 @@ class TimeAwareAttentionLayer(nn.Module):
         attn_scores = torch.matmul(q, k.transpose(-2, -1)) * self.scale  # [B, H, L, L]
 
         # ============================================================
-        # KEY TiSASRec: Add time-aware bias
+        # TiSASRec: add time-aware bias.
         # ============================================================
         time_bias = self.time_relation_embedding(time_relation_matrix)  # [B, L, L, H]
         time_bias = time_bias.permute(0, 3, 1, 2)  # [B, H, L, L]
@@ -308,7 +306,7 @@ class TimeAwareAttentionLayer(nn.Module):
         attn_scores = attn_scores + time_bias
 
         # ============================================================
-        # PADDING-SAFE: Create combined attention mask
+        # Create combined attention mask.
         # ============================================================
         # Causal mask: upper triangular (future positions masked)
         causal_mask = torch.triu(
@@ -327,7 +325,7 @@ class TimeAwareAttentionLayer(nn.Module):
         # key_padding_mask: True = cannot attend (padding)
         attn_mask = causal_mask.unsqueeze(0).unsqueeze(0) | key_padding_mask  # [B, H, L, L] (broadcasted)
 
-        # CRITICAL FIX: Prevent all-masked rows from causing NaN
+        # Prevent all-masked rows from causing NaN.
         # When all positions are masked for a query, softmax(-inf, -inf, ...) = NaN
         # Solution: Keep at least one position unmasked (the diagonal for valid positions)
         # For padding query positions, we still compute but the result is unused
@@ -360,7 +358,7 @@ class TimeAwareAttentionLayer(nn.Module):
 
 if __name__ == '__main__':
     # Quick test
-    print("Testing TiSASRec with TRUE time relation matrix...")
+    print("Testing TiSASRec with time relation matrix...")
 
     model = TiSASRec(item_num=1000, embedding_dim=64, num_heads=2, num_layers=2)
 
@@ -382,6 +380,6 @@ if __name__ == '__main__':
     if torch.isnan(logits).any():
         print("ERROR: NaN detected in output!")
     else:
-        print("SUCCESS: No NaN in output - Padding-Safe implementation verified!")
+        print("No NaN in output; padding-safe implementation verified.")
 
     print("\nTiSASRec model test passed!")

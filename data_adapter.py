@@ -63,10 +63,10 @@ class ShardStreamingDataset(IterableDataset):
         worker_id = worker_info.id if worker_info else 0
         num_workers = worker_info.num_workers if worker_info else 1
 
-        # 分配 Shards 给不同的 Worker，避免重复读取
+        # Assign different shards to different workers to avoid duplicate reads.
         worker_shards = [p for i, p in enumerate(self.shard_paths) if i % num_workers == worker_id]
-        
-        # 确保不同 Worker 的随机种子不同
+
+        # Use a different random seed per worker.
         rng = random.Random(self.seed + worker_id)
         rng.shuffle(worker_shards)
         
@@ -92,7 +92,7 @@ class ShardStreamingDataset(IterableDataset):
                 
                 buffer.append(item)
                 
-                # Buffer 满时，随机弹出一个，实现伪全局打散
+                # Pop a random sample once the buffer is full for approximate global shuffling.
                 if len(buffer) >= self.buffer_size:
                     idx = rng.randrange(len(buffer))
                     yield buffer.pop(idx)
@@ -100,7 +100,7 @@ class ShardStreamingDataset(IterableDataset):
             del shard
             gc.collect()
             
-        # 清空剩余 Buffer
+        # Flush the remaining buffer.
         rng.shuffle(buffer)
         for item in buffer:
             yield item
@@ -114,7 +114,7 @@ def load_data(file_path, seed=42):
         print("[DataAdapter] Detected Sharded Architecture. Creating streaming dataset...")
         return ShardStreamingDataset(file_path, seed=seed)
     
-    # ... (保留原有的 legacy dict 逻辑) ...
+    # Legacy monolithic-dict path.
     print("[DataAdapter] Detected Monolithic Architecture.")
     train_samples = data.get('train_samples', data.get('train_data', []))
     test_samples = data.get('test_samples', data.get('test_data', []))

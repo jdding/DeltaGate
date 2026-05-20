@@ -1,0 +1,10 @@
+._*
+.DS_Store
+__MACOSX/
+__pycache__/
+*.py[cod]
+checkpoints/
+outputs/
+logs/
+*.pt
+*.pkl

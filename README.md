@@ -1,83 +1,119 @@
 # Zero-Observation User Reactivation with Gap-Driven Dimensional Gating
 
-Sequential recommendation model incorporating time-decayed item semantics into transformer architectures.
+This repository contains the public code artifact for DeltaGate, a lightweight
+gap-conditioned plugin for sequential recommendation under long user inactivity
+gaps. The implementation includes standard sequential backbones, DeltaGate
+variants, evaluation utilities, and result tables used by the paper.
 
-## Overview
+## Repository Layout
 
-This repository contains the model implementation and evaluation pipeline for DeltaGate, a sequential recommendation approach that integrates temporal decay patterns with semantic item representations.
+```text
+.
+|-- train.py                 # Training entrypoint
+|-- evaluate_offline.py      # Full-ranking evaluation entrypoint
+|-- data_adapter.py          # Loader for processed data or sharded training data
+|-- src/                     # Model implementations
+|-- results/                 # Aggregated paper results
+|-- data/README.md           # Expected processed-data format
+`-- tests/smoke_imports.py   # Import and forward-pass smoke test
+```
 
 ## Dependencies
 
-```
-torch>=2.0
-numpy
-scipy
-pandas
-scikit-learn
-tqdm
-transformers
+Install the Python dependencies with:
+
+```bash
+pip install -r requirements.txt
 ```
 
-Install with: `pip install -r requirements.txt`
+The code was written for PyTorch 2.x and standard scientific Python packages.
+GPU acceleration is recommended for full training runs.
 
-## Data Preparation
+## Data
 
-Place processed data files in the `data/` directory. Expected format:
+Processed data files should be placed under `data/`:
 
-```
+```text
 data/
-├── amazon_cds_vinyl_processed.pkl    # CDs & Vinyl dataset
-├── amazon_movies_tv_processed.pkl    # Movies & TV dataset
-└── amazon_video_games_processed.pkl   # Video Games dataset
+|-- amazon_cds_vinyl_processed.pkl
+|-- amazon_movies_tv_processed.pkl
+`-- amazon_video_games_processed.pkl
 ```
 
-Each pickle file should contain:
-- `train_samples`: training sequences
-- `test_samples`: test sequences
-- `item_vocab_size`: vocabulary size
+Each processed file should provide:
+
+- `train_samples`: training examples, or metadata for sharded training data
+- `test_samples`: full-ranking test examples
+- `item_vocab_size`: item vocabulary size
 - `max_len`: maximum sequence length
 
-## Running Instructions
+Each sample is expected to contain `seq_idx`, `target_idx`, `bucket`, and, for
+DeltaGate models, `gap_days`. TiSASRec additionally expects `intervals`.
 
-### Training
+## Quick Smoke Test
+
+Run this command to verify imports and model forward passes:
+
+```bash
+python tests/smoke_imports.py
+```
+
+This smoke test does not require the Amazon datasets.
+
+## Training
+
+Example DeltaGate-SASRec training command:
 
 ```bash
 python train.py \
-    --dataset movies_tv \
+    --data data/amazon_movies_tv_processed.pkl \
     --model deltagate-sasrec \
-    --embed_dim 128 \
-    --max_len 50 \
+    --embed-dim 128 \
+    --max-len 50 \
     --lr 0.001 \
-    --num_epochs 200 \
-    --batch_size 128 \
-    --output_dir ./checkpoints/
+    --epochs 200 \
+    --batch-size 128 \
+    --output checkpoints/movies_tv_deltagate_sasrec_seed42.pt \
+    --seed 42 \
+    --device auto
 ```
 
-### Evaluation
+Supported training models:
+
+- `sasrec`
+- `gru4rec`
+- `bert4rec`
+- `tisasrec`
+- `deltagate-sasrec`
+- `deltagate-gru4rec`
+
+DeltaGate-SASRec also supports `--ablation_mode fixed_gate` and
+`--ablation_mode prior_only`.
+
+## Evaluation
+
+Example full-ranking evaluation command:
 
 ```bash
 python evaluate_offline.py \
     --data data/amazon_movies_tv_processed.pkl \
-    --model_path checkpoints/movies_tv_s42/model.pt \
+    --model_path checkpoints/movies_tv_deltagate_sasrec_seed42.pt \
     --model deltagate-sasrec \
-    --embed_dim 128 \
-    --max_len 50
+    --embed-dim 128 \
+    --max-len 50
 ```
 
-### Models
-
-- `SASRec` — SASRec baseline
-- `GRU4Rec` — GRU4Rec baseline
-- `BERT4Rec` — BERT4Rec baseline
-- `TiSASRec` — Time-informed SASRec
-- `DeltaGateSASRec` — DeltaGate with SASRec backbone
-- `DeltaGateGRU4Rec` — DeltaGate with GRU4Rec backbone
+The offline evaluation script currently supports `sasrec`, `gru4rec`,
+`bert4rec`, and `deltagate-sasrec`.
 
 ## Results
 
-See `results/` for detailed experimental results across three Amazon categories:
-- CDs & Vinyl
-- Movies & TV
-- Video Games
+The `results/` directory contains aggregated Hit@10 and NDCG@10 results for:
 
-Results include Hit@10, NDCG@10, MRR@10 by dormancy bucket (30-90d, 90-180d, 180-365d, >365d).
+- Amazon Video Games
+- Amazon CDs & Vinyl
+- Amazon Movies & TV
+
+The main result summary is in `results/PAPER_RESULTS.md`; machine-readable
+tables are provided in `results/results.json`, `results/results_all.json`, and
+`results/results_e2e.json`.

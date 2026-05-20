@@ -10,11 +10,6 @@ Supports multiple model architectures:
 - tisasrec: Time Interval-aware SASRec
 - deltagate-sasrec: SASRec + Delta-Gate
 - deltagate-gru4rec: GRU4Rec + Delta-Gate
-
-SANITIZED: 
-- Fixed GPU starvation by migrating to PyTorch DataLoader for streaming.
-- Added Linear LR Warmup to prevent Transformer attention collapse.
-- Kept Full-Ranking evaluation to maintain academic integrity.
 """
 
 import argparse
@@ -29,7 +24,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from models import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
+from src import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
 
 BUCKET_NAMES = ['30-90d', '90-180d', '180-365d', '>365d']
 

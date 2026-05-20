@@ -14,7 +14,7 @@ from tqdm import tqdm
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from models import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
+from src import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
 from train import make_batch_standard, make_batch_tisasrec, make_batch_deltagate, make_batch_bert4rec
 
 BUCKET_NAMES = ['30-90d', '90-180d', '180-365d', '>365d']
