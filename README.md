@@ -117,3 +117,8 @@ The `results/` directory contains aggregated Hit@10 and NDCG@10 results for:
 The main result summary is in `results/PAPER_RESULTS.md`; machine-readable
 tables are provided in `results/results.json`, `results/results_all.json`, and
 `results/results_e2e.json`.
+
+## Project Documentation
+
+For a reviewer-oriented description of the project scope, artifact contents,
+reproduction levels, and expected checks, see `docs/PROJECT.md`.
