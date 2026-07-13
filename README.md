@@ -68,6 +68,7 @@ Example DeltaGate-SASRec training command:
 python train.py \
     --data data/amazon_movies_tv_processed.pkl \
     --model deltagate-sasrec \
+    --backbone checkpoints/movies_tv_sasrec_seed42.pt \
     --embed-dim 128 \
     --max-len 50 \
     --lr 0.001 \
@@ -86,9 +87,14 @@ Supported training models:
 - `tisasrec`
 - `deltagate-sasrec`
 - `deltagate-gru4rec`
+- `deltagate-bert4rec`
 
-DeltaGate-SASRec also supports `--ablation_mode fixed_gate` and
-`--ablation_mode prior_only`.
+DeltaGate models also support `--ablation_mode fixed_gate` and
+`--ablation_mode prior_only`. DeltaGate plugin training requires a compatible
+pretrained backbone checkpoint. The loader freezes all backbone and item
+embedding parameters and optimizes only `gate_mlp` and `global_prior`.
+For `deltagate-bert4rec`, batching appends `[MASK]` after the chronological
+history and extracts that final hidden state, matching Algorithm 1.
 
 ## Evaluation
 
@@ -103,8 +109,8 @@ python evaluate_offline.py \
     --max-len 50
 ```
 
-The offline evaluation script currently supports `sasrec`, `gru4rec`,
-`bert4rec`, and `deltagate-sasrec`.
+The offline evaluation script supports `sasrec`, `gru4rec`, `bert4rec`, and
+all three DeltaGate variants.
 
 ## Results
 
@@ -120,5 +126,5 @@ tables are provided in `results/results.json`, `results/results_all.json`, and
 
 ## Project Documentation
 
-For a reviewer-oriented description of the project scope, artifact contents,
+For a paper-artifact description of the project scope, artifact contents,
 reproduction levels, and expected checks, see `docs/PROJECT.md`.

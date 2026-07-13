@@ -1,37 +1,20 @@
 #!/usr/bin/env python3
-"""
-Delta-Gate Recommendation Models
-================================
-
-SASRec/GRU4Rec backbone + Delta-Gate at output layer.
-NO time injection inside Transformer (keeps ablation clean).
-
-Core Innovation: Vector Delta-Gate with Confidence-Adaptive Prior Fallback
-
-Differentiation from TiSASRec:
-- TiSASRec models intra-sequence time intervals
-- We model the single massive gap AFTER the sequence ends
-- Explicit prior fallback when historical confidence collapses
-"""
+"""DeltaGate adapters for SASRec and GRU4Rec backbones."""
 
 import torch
 import torch.nn as nn
 
 
+def _validate_delta_t(delta_t: torch.Tensor):
+    if torch.any(delta_t < 0):
+        raise ValueError("delta_t must be non-negative")
+
+
 class DeltaGateSASRec(nn.Module):
-    """
-    SASRec backbone + Delta-Gate at output layer only.
-    Transformer internals use standard absolute positional encoding.
-    NO time injection inside Transformer (keeps ablation clean).
+    """SASRec with output-layer dimensional gating.
 
-    Implementation notes:
-    - Uses a causal Transformer backbone.
-    - Extracts TRUE last valid hidden state for left-padding (index -1)
-
-    ABLATION SUPPORT:
-    - ablation_mode='none': Normal learned gate (default)
-    - ablation_mode='fixed_gate': Fixed g=0.5 during TRAINING and inference
-    - ablation_mode='prior_only': Fixed g=0 during TRAINING and inference
+    ``ablation_mode`` selects the learned gate, a fixed 0.5 gate, or the
+    global-prior-only variant.
     """
 
     def __init__(
@@ -51,27 +34,24 @@ class DeltaGateSASRec(nn.Module):
         self.max_seq_len = max_seq_len
         self.ablation_mode = ablation_mode
 
-        # Validate ablation mode
         assert ablation_mode in ['none', 'fixed_gate', 'prior_only'], \
             f"Invalid ablation_mode: {ablation_mode}. Must be 'none', 'fixed_gate', or 'prior_only'"
 
         if ablation_mode != 'none':
             print(f"[ABLATION] DeltaGateSASRec initialized with ablation_mode='{ablation_mode}'")
 
-        # Item embedding (0 is padding)
         self.item_embedding = nn.Embedding(
             num_embeddings=item_num + 1,
             embedding_dim=embedding_dim,
             padding_idx=0
         )
 
-        # Absolute positional encoding (NOT time-aware)
+        # The backbone uses ordinary positional embeddings; delta_t enters only the gate.
         self.position_embedding = nn.Embedding(
             num_embeddings=max_seq_len,
             embedding_dim=embedding_dim
         )
 
-        # Transformer encoder
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=embedding_dim,
             nhead=num_heads,
@@ -89,19 +69,15 @@ class DeltaGateSASRec(nn.Module):
         self.layer_norm = nn.LayerNorm(embedding_dim)
         self.dropout = nn.Dropout(dropout)
 
-        # ================================================================
-        # Vector Delta-Gate (ends with Sigmoid!)
-        # ================================================================
         gate_input_dim = 1 + embedding_dim
 
         self.gate_mlp = nn.Sequential(
             nn.Linear(gate_input_dim, embedding_dim * 2),
             nn.ReLU(),
             nn.Linear(embedding_dim * 2, embedding_dim),
-            nn.Sigmoid()  # Output strictly in [0, 1]
+            nn.Sigmoid()
         )
 
-        # Global Mainstream Prior
         self.global_prior = nn.Parameter(torch.zeros(embedding_dim))
         nn.init.zeros_(self.global_prior)
 
@@ -123,66 +99,52 @@ class DeltaGateSASRec(nn.Module):
             logits: [batch_size, item_num] scores over all items
             confidence: [batch_size] confidence scores for analysis
         """
+        _validate_delta_t(delta_t)
         batch_size, seq_len = seq.shape
 
-        # Item + Position embeddings
-        item_emb = self.item_embedding(seq)  # [B, L, D]
+        item_emb = self.item_embedding(seq)
         positions = torch.arange(seq_len, device=seq.device).unsqueeze(0).expand(batch_size, -1)
         pos_emb = self.position_embedding(positions)  # [B, L, D]
         x = item_emb + pos_emb  # [B, L, D]
         x = self.dropout(x)
 
-        # 1. Causal Mask (float('-inf') to avoid NaN gradient poisoning)
+        # A float causal mask avoids fully masked rows under left padding.
         causal_mask = torch.triu(
             torch.full((seq_len, seq_len), float('-inf'), device=seq.device),
             diagonal=1
         )
 
-        # 2. Transformer with causal mask only (no src_key_padding_mask)
         x = self.transformer(x, mask=causal_mask)
         x = self.layer_norm(x)
 
-        # Left-padding: last valid item is ALWAYS at index -1
-        h_personalized = x[:, -1, :]  # [B, D]
+        h_personalized = x[:, -1, :]
 
-        # Vector Delta-Gate with Ablation Support
         if self.ablation_mode == 'fixed_gate':
-            # ABLATION: Fixed gate g=0.5 (equal mix of history and prior)
             g = torch.full((batch_size, self.embedding_dim), 0.5, device=seq.device)
         elif self.ablation_mode == 'prior_only':
-            # ABLATION: Fixed gate g=0 (pure prior fallback)
             g = torch.zeros(batch_size, self.embedding_dim, device=seq.device)
         else:
-            # NORMAL: Learned gate via MLP
-            delta_normalized = torch.log1p(delta_t)  # [B]
+            delta_normalized = torch.log1p(delta_t)
             gate_input = torch.cat([
-                delta_normalized.unsqueeze(-1),  # [B, 1]
-                h_personalized                    # [B, D]
-            ], dim=-1)  # [B, 1 + D]
-            g = self.gate_mlp(gate_input)  # [B, D] in [0, 1]
+                delta_normalized.unsqueeze(-1),
+                h_personalized
+            ], dim=-1)
+            g = self.gate_mlp(gate_input)
 
-        # Gated Fusion
-        global_prior_expanded = self.global_prior.unsqueeze(0).expand(batch_size, -1)  # [B, D]
-        h_final = g * h_personalized + (1 - g) * global_prior_expanded  # [B, D]
+        global_prior_expanded = self.global_prior.unsqueeze(0).expand(batch_size, -1)
+        h_final = g * h_personalized + (1 - g) * global_prior_expanded
 
-        # Compute Logits
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
-        all_item_emb = self.item_embedding(all_items)  # [V, D]
-        logits = torch.matmul(h_final, all_item_emb.T)  # [B, item_num]
+        all_item_emb = self.item_embedding(all_items)
+        logits = torch.matmul(h_final, all_item_emb.T)
 
-        # Confidence Score
-        confidence = g.mean(dim=-1)  # [B]
+        confidence = g.mean(dim=-1)
 
         return logits, confidence
 
 
 class DeltaGateGRU4Rec(nn.Module):
-    """
-    GRU4Rec backbone + Delta-Gate at output layer.
-
-    Implementation notes:
-    - Extracts TRUE last valid hidden state for left-padding (index -1)
-    """
+    """GRU4Rec with output-layer dimensional gating."""
 
     def __init__(
         self,
@@ -198,7 +160,6 @@ class DeltaGateGRU4Rec(nn.Module):
         self.embedding_dim = embedding_dim
         self.hidden_size = hidden_size
 
-        # GRU4Rec backbone
         self.item_embedding = nn.Embedding(item_num + 1, embedding_dim, padding_idx=0)
         self.gru = nn.GRU(
             embedding_dim, hidden_size, num_layers, batch_first=True,
@@ -207,16 +168,14 @@ class DeltaGateGRU4Rec(nn.Module):
         self.dropout = nn.Dropout(dropout)
         nn.init.normal_(self.item_embedding.weight, 0, 0.01)
 
-        # Delta-Gate module (ends with Sigmoid!)
         gate_input_dim = 1 + hidden_size
         self.gate_mlp = nn.Sequential(
             nn.Linear(gate_input_dim, hidden_size * 2),
             nn.ReLU(),
             nn.Linear(hidden_size * 2, hidden_size),
-            nn.Sigmoid()  # Output strictly in [0, 1]
+            nn.Sigmoid()
         )
 
-        # Global mainstream prior
         self.global_prior = nn.Parameter(torch.zeros(hidden_size))
         nn.init.zeros_(self.global_prior)
 
@@ -232,6 +191,7 @@ class DeltaGateGRU4Rec(nn.Module):
             logits: [B, item_num] scores over all items
             confidence: [B] confidence scores
         """
+        _validate_delta_t(delta_t)
         batch_size = seq.shape[0]
 
         # GRU4Rec backbone
@@ -239,11 +199,9 @@ class DeltaGateGRU4Rec(nn.Module):
         x = self.dropout(x)
         h, _ = self.gru(x)  # [B, L, H]
 
-        # Left-padding: last valid item is ALWAYS at index -1
-        h_personalized = h[:, -1, :]  # [B, H]
+        h_personalized = h[:, -1, :]
 
-        # Delta-Gate
-        delta_normalized = torch.log1p(delta_t)  # [B]
+        delta_normalized = torch.log1p(delta_t)
         gate_input = torch.cat([
             delta_normalized.unsqueeze(-1),  # [B, 1]
             h_personalized                    # [B, H]
@@ -251,25 +209,112 @@ class DeltaGateGRU4Rec(nn.Module):
 
         g = self.gate_mlp(gate_input)  # [B, H] in [0, 1]
 
-        # Gated fusion
         global_prior_expanded = self.global_prior.unsqueeze(0).expand(batch_size, -1)
         h_final = g * h_personalized + (1 - g) * global_prior_expanded  # [B, H]
 
-        # Compute logits
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
         logits = torch.matmul(h_final, self.item_embedding(all_items).T)  # [B, item_num]
 
-        # Confidence score
-        confidence = g.mean(dim=-1)  # [B]
+        confidence = g.mean(dim=-1)
 
         return logits, confidence
 
 
+class DeltaGateBERT4Rec(nn.Module):
+    """BERT4Rec with final-mask extraction and output-layer dimensional gating."""
+
+    def __init__(
+        self,
+        item_num: int,
+        embedding_dim: int = 64,
+        num_heads: int = 2,
+        num_layers: int = 2,
+        max_seq_len: int = 50,
+        dropout: float = 0.2,
+        ablation_mode: str = 'none',
+    ):
+        super().__init__()
+        if ablation_mode not in ['none', 'fixed_gate', 'prior_only']:
+            raise ValueError(f"Invalid ablation_mode: {ablation_mode}")
+
+        self.item_num = item_num
+        self.embedding_dim = embedding_dim
+        self.mask_token = item_num + 1
+        self.ablation_mode = ablation_mode
+
+        self.item_embedding = nn.Embedding(
+            item_num + 2,
+            embedding_dim,
+            padding_idx=0,
+        )
+        self.position_embedding = nn.Embedding(max_seq_len, embedding_dim)
+
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=embedding_dim,
+            nhead=num_heads,
+            dim_feedforward=embedding_dim * 4,
+            dropout=dropout,
+            activation='gelu',
+            batch_first=True,
+        )
+        self.transformer = nn.TransformerEncoder(
+            encoder_layer,
+            num_layers=num_layers,
+        )
+        self.layer_norm = nn.LayerNorm(embedding_dim)
+        self.dropout = nn.Dropout(dropout)
+
+        self.gate_mlp = nn.Sequential(
+            nn.Linear(embedding_dim + 1, embedding_dim * 2),
+            nn.ReLU(),
+            nn.Linear(embedding_dim * 2, embedding_dim),
+            nn.Sigmoid(),
+        )
+        self.global_prior = nn.Parameter(torch.zeros(embedding_dim))
+
+        # BERT4Rec stores one bias row for padding plus one for each catalog item.
+        # DeltaGate keeps an additional frozen mask-token row for checkpoint loading.
+        self.output_bias = nn.Parameter(torch.zeros(item_num + 2))
+
+        nn.init.normal_(self.item_embedding.weight, mean=0, std=0.01)
+        nn.init.normal_(self.position_embedding.weight, mean=0, std=0.01)
+
+    def forward_backbone(self, seq: torch.Tensor):
+        """Run the exact encoder path used by the pretrained BERT4Rec backbone."""
+        batch_size, seq_len = seq.shape
+        positions = torch.arange(seq_len, device=seq.device).unsqueeze(0).expand(batch_size, -1)
+        x = self.dropout(self.item_embedding(seq) + self.position_embedding(positions))
+        x = self.transformer(x)
+        x = x * seq.ne(0).float().unsqueeze(-1)
+        x = self.layer_norm(x)
+        return x
+
+    def forward(self, seq: torch.Tensor, delta_t: torch.Tensor):
+        _validate_delta_t(delta_t)
+        batch_size = seq.shape[0]
+        x = self.forward_backbone(seq)
+
+        h_personalized = x[:, -1, :]
+        if self.ablation_mode == 'fixed_gate':
+            g = torch.full_like(h_personalized, 0.5)
+        elif self.ablation_mode == 'prior_only':
+            g = torch.zeros_like(h_personalized)
+        else:
+            gate_input = torch.cat(
+                [torch.log1p(delta_t).unsqueeze(-1), h_personalized],
+                dim=-1,
+            )
+            g = self.gate_mlp(gate_input)
+
+        h_final = g * h_personalized + (1 - g) * self.global_prior.unsqueeze(0)
+        item_embeddings = self.item_embedding.weight[1:self.item_num + 1]
+        logits = torch.matmul(h_final, item_embeddings.T)
+        logits = logits + self.output_bias[1:self.item_num + 1]
+        return logits, g.mean(dim=-1)
+
+
 class SASRecBaseline(nn.Module):
-    """
-    Pure SASRec Baseline (NO DeltaGate).
-    Uses padding masks and left-padding-aware extraction.
-    """
+    """SASRec baseline without DeltaGate."""
 
     def __init__(
         self,
@@ -332,10 +377,7 @@ class SASRecBaseline(nn.Module):
 
 
 class GRU4RecBaseline(nn.Module):
-    """
-    Pure GRU4Rec Baseline (NO DeltaGate).
-    Uses left-padding-aware extraction.
-    """
+    """GRU4Rec baseline without DeltaGate."""
 
     def __init__(
         self,
@@ -363,9 +405,7 @@ class GRU4RecBaseline(nn.Module):
         x = self.dropout(x)
         h, _ = self.gru(x)
 
-        # TRUE last valid hidden state for left-padding
-        # (The last item is always at index -1, padded zeros are on the left)
-        h_last = h[:, -1, :]  # [B, H]
+        h_last = h[:, -1, :]
 
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
         logits = torch.matmul(h_last, self.item_embedding(all_items).T)
@@ -379,8 +419,7 @@ if __name__ == '__main__':
     seq = torch.randint(1, 1001, (4, 50))
     delta_t = torch.tensor([30.0, 180.0, 400.0, 730.0])
 
-    # Test with some padding
-    seq[0, :10] = 0  # Left pad first sequence
+    seq[0, :10] = 0
 
     print("\nDeltaGateSASRec...")
     model_sas = DeltaGateSASRec(item_num=1000, embedding_dim=64)

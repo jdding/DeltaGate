@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
-"""
-BERT4Rec Implementation
-=======================
-
-BERT4Rec: Sequential Recommendation with Bidirectional Encoder Representations
-"""
+"""BERT4Rec backbone used in the experiments."""
 
 import torch
 import torch.nn as nn
 
 
 class BERT4Rec(nn.Module):
-    """
-    BERT4Rec: Sequential Recommendation with Bidirectional Encoder.
-
-    Architecture:
-    - Item embedding with padding and mask token
-    - Bidirectional Transformer encoder
-    - Masked item prediction
-    """
+    """Bidirectional Transformer for masked-item prediction."""
 
     def __init__(
         self,
@@ -69,17 +57,8 @@ class BERT4Rec(nn.Module):
         nn.init.normal_(self.item_embedding.weight, mean=0, std=0.01)
         nn.init.normal_(self.position_embedding.weight, mean=0, std=0.01)
 
-    def forward(self, seq: torch.Tensor, return_all: bool = False):
-        """
-        Forward pass.
-
-        Args:
-            seq: [batch_size, seq_len] item sequence with possible masks
-            return_all: if True, return logits for all positions
-
-        Returns:
-            logits: [batch_size, item_num] or [batch_size, seq_len, item_num]
-        """
+    def forward_backbone(self, seq: torch.Tensor):
+        """Return the final hidden states used by the prediction head."""
         B, L = seq.shape
 
         # Embedding
@@ -94,6 +73,20 @@ class BERT4Rec(nn.Module):
         x = self.transformer(x)
         x = x * mask
         x = self.layer_norm(x)
+        return x
+
+    def forward(self, seq: torch.Tensor, return_all: bool = False):
+        """
+        Forward pass.
+
+        Args:
+            seq: [batch_size, seq_len] item sequence with possible masks
+            return_all: if True, return logits for all positions
+
+        Returns:
+            logits: [batch_size, item_num] or [batch_size, seq_len, item_num]
+        """
+        x = self.forward_backbone(seq)
 
         # Output projection
         weights = self.item_embedding.weight[1:self.item_num + 1]
@@ -105,7 +98,6 @@ class BERT4Rec(nn.Module):
 
 
 if __name__ == '__main__':
-    # Quick test
     model = BERT4Rec(item_num=1000, embedding_dim=64)
     seq = torch.randint(1, 1001, (4, 50))
     logits = model(seq)

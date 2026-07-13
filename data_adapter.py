@@ -1,10 +1,4 @@
-"""
-Shard-Streaming Data Adapter v3 (Fixed)
-=======================================
-1. Memory-efficient: Loads one shard at a time
-2. Global Shuffle Buffer: Prevents Catastrophic Forgetting
-3. Multi-worker compatible via IterableDataset
-"""
+"""Data loading for monolithic and sharded processed datasets."""
 
 import pickle
 import os

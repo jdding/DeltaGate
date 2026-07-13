@@ -1,33 +1,12 @@
 #!/usr/bin/env python3
-"""
-TiSASRec Implementation with Padding-Safe Time Matrices
-=======================================================
-
-Time Interval-aware Self-Attentive Sequential Recommendation
-Reference: TiSASRec (Time Interval Aware Self-Attention for Sequential Recommendation)
-
-The implementation includes:
-1. Time relation matrix R[i][j] = |interval_i - interval_j|
-2. Time relation embeddings added to attention weights
-3. Padding-safe masking to avoid numerical issues from zero-padding
-
-"""
+"""TiSASRec baseline with padding-safe time-relation attention."""
 import torch
 import torch.nn as nn
 import math
 
 
 class TiSASRec(nn.Module):
-    """
-    TiSASRec with time relation matrices and padding-safe masking.
-
-    Key Components:
-    1. Item embedding + Position embedding + Time interval embedding
-    2. Time relation matrix: R[i][j] = |interval_i - interval_j|
-    3. Time relation embedding added to attention scores
-    4. Padding mask prevents attention to/from padding positions
-       AND prevents time matrix explosion from zero-padding intervals
-    """
+    """Time-interval-aware self-attentive sequential recommender."""
 
     def __init__(
         self,
@@ -62,8 +41,7 @@ class TiSASRec(nn.Module):
         # Time interval embedding (for each position's interval from predecessor)
         self.time_embedding = nn.Embedding(time_buckets, embedding_dim)
 
-        # Time relation embedding (for attention bias from time relation matrix)
-        # This is the KEY difference from SASRec!
+        # Relation embeddings provide a per-head temporal attention bias.
         self.time_relation_embedding = nn.Embedding(time_buckets, embedding_dim)
 
         # Custom multi-head attention with time-aware bias
@@ -100,7 +78,7 @@ class TiSASRec(nn.Module):
             Bucket indices in range [0, time_buckets-1]
         """
         eps = 1e-6
-        # Log scale for better resolution on short intervals
+        # Log scaling preserves more resolution for short intervals.
         normalized = torch.log1p(torch.abs(time_values) + eps) / math.log1p(self.max_time_interval)
         buckets = (normalized * (self.time_buckets - 1)).long()
         buckets = torch.clamp(buckets, 0, self.time_buckets - 1)
@@ -129,18 +107,13 @@ class TiSASRec(nn.Module):
         """
         batch_size, seq_len = intra_intervals.shape
 
-        # Expand intervals for pairwise computation
-        # interval_i: [B, L, 1], interval_j: [B, 1, L]
-        interval_i = intra_intervals.unsqueeze(-1)  # [B, L, 1]
-        interval_j = intra_intervals.unsqueeze(1)   # [B, 1, L]
+        interval_i = intra_intervals.unsqueeze(-1)
+        interval_j = intra_intervals.unsqueeze(1)
 
-        # R[i][j] = |interval_i - interval_j|
-        time_relation = torch.abs(interval_i - interval_j)  # [B, L, L]
+        time_relation = torch.abs(interval_i - interval_j)
 
-        # PADDING-SAFE: Set time relations involving padding to 0
-        # These will be masked out by the attention mask anyway
-        # But setting them to 0 prevents log(inf) or other numerical issues
-        padding_mask_2d = padding_mask.unsqueeze(-1) | padding_mask.unsqueeze(1)  # [B, L, L]
+        # Zero padding relations before bucketization; attention masks them later.
+        padding_mask_2d = padding_mask.unsqueeze(-1) | padding_mask.unsqueeze(1)
         time_relation = time_relation.masked_fill(padding_mask_2d, 0.0)
 
         # Bucketize
@@ -167,16 +140,9 @@ class TiSASRec(nn.Module):
         """
         batch_size, seq_len = seq.shape
 
-        # ============================================================
-        # Step 1: Create padding mask (True = padding, to be masked)
-        # ============================================================
-        padding_mask = (seq == 0)  # [B, L], True for padding positions
+        padding_mask = (seq == 0)
 
-        # ============================================================
-        # Step 2: Compute embeddings
-        # ============================================================
-        # Item embeddings
-        item_emb = self.item_embedding(seq)  # [B, L, D]
+        item_emb = self.item_embedding(seq)
 
         # Position embeddings (absolute)
         positions = torch.arange(seq_len, device=seq.device).unsqueeze(0).expand(batch_size, -1)
@@ -190,16 +156,10 @@ class TiSASRec(nn.Module):
         x = item_emb + pos_emb + time_emb  # [B, L, D]
         x = self.dropout(x)
 
-        # ============================================================
-        # Step 3: Compute time relation matrix (KEY TiSASRec component)
-        # ============================================================
         time_relation_matrix = self.compute_time_relation_matrix(
             intra_intervals, padding_mask
         )  # [B, L, L]
 
-        # ============================================================
-        # Step 4: Time-aware attention layers
-        # ============================================================
         for attn_layer in self.attention_layers:
             x = attn_layer(
                 x,
@@ -209,15 +169,8 @@ class TiSASRec(nn.Module):
 
         x = self.layer_norm(x)
 
-        # ============================================================
-        # Step 5: Extract last valid position (most recent non-padding item)
-        # ============================================================
-        # With left-padding, last position (-1) is the most recent item
-        h = x[:, -1, :]  # [B, D]
+        h = x[:, -1, :]
 
-        # ============================================================
-        # Step 6: Compute scores over all items
-        # ============================================================
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
         logits = torch.matmul(h, self.item_embedding(all_items).T)  # [B, item_num]
 
@@ -225,14 +178,7 @@ class TiSASRec(nn.Module):
 
 
 class TimeAwareAttentionLayer(nn.Module):
-    """
-    Multi-head attention layer with time-aware bias from time relation matrix.
-
-    This implements the core TiSASRec innovation:
-    Attention(Q, K, V) = softmax(QK^T / sqrt(d) + TimeBias) * V
-
-    where TimeBias is computed from the time relation embeddings.
-    """
+    """Multi-head attention with a learned time-relation bias."""
 
     def __init__(
         self,
@@ -285,30 +231,17 @@ class TimeAwareAttentionLayer(nn.Module):
         # Layer norm
         x = self.layer_norm(x)
 
-        # ============================================================
-        # Compute Q, K, V
-        # ============================================================
         q = self.q_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  # [B, H, L, d]
         k = self.k_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  # [B, H, L, d]
         v = self.v_proj(x).view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)  # [B, H, L, d]
 
-        # ============================================================
-        # Compute attention scores: QK^T / sqrt(d)
-        # ============================================================
         attn_scores = torch.matmul(q, k.transpose(-2, -1)) * self.scale  # [B, H, L, L]
 
-        # ============================================================
-        # TiSASRec: add time-aware bias.
-        # ============================================================
         time_bias = self.time_relation_embedding(time_relation_matrix)  # [B, L, L, H]
         time_bias = time_bias.permute(0, 3, 1, 2)  # [B, H, L, L]
 
         attn_scores = attn_scores + time_bias
 
-        # ============================================================
-        # Create combined attention mask.
-        # ============================================================
-        # Causal mask: upper triangular (future positions masked)
         causal_mask = torch.triu(
             torch.ones(seq_len, seq_len, device=x.device),
             diagonal=1
@@ -325,20 +258,12 @@ class TimeAwareAttentionLayer(nn.Module):
         # key_padding_mask: True = cannot attend (padding)
         attn_mask = causal_mask.unsqueeze(0).unsqueeze(0) | key_padding_mask  # [B, H, L, L] (broadcasted)
 
-        # Prevent all-masked rows from causing NaN.
-        # When all positions are masked for a query, softmax(-inf, -inf, ...) = NaN
-        # Solution: Keep at least one position unmasked (the diagonal for valid positions)
-        # For padding query positions, we still compute but the result is unused
-        # Create a "safe" mask that ensures diagonal is always available for causal attention
-        # The diagonal represents self-attention, which is always valid in causal attention
+        # Keep the diagonal available so padding queries do not produce all-masked rows.
         diagonal_mask = torch.eye(seq_len, device=x.device).bool().unsqueeze(0).unsqueeze(0)  # [1, 1, L, L]
 
         # Apply mask: set masked positions to -inf, but keep diagonal available
         attn_scores = attn_scores.masked_fill(attn_mask & ~diagonal_mask, float('-inf'))
 
-        # ============================================================
-        # Softmax and apply to values
-        # ============================================================
         attn_probs = torch.softmax(attn_scores, dim=-1)  # [B, H, L, L]
         attn_probs = self.dropout(attn_probs)
 
@@ -357,7 +282,6 @@ class TimeAwareAttentionLayer(nn.Module):
 
 
 if __name__ == '__main__':
-    # Quick test
     print("Testing TiSASRec with time relation matrix...")
 
     model = TiSASRec(item_num=1000, embedding_dim=64, num_heads=2, num_layers=2)

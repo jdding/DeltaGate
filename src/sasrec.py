@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Robust SASRec Implementation
-==============================
-Fixed: PyTorch NaN Gradient Poisoning from overlapping masks.
-"""
+"""SASRec backbone used in the experiments."""
 
 import torch
 import torch.nn as nn
@@ -33,7 +29,7 @@ class SASRec(nn.Module):
             dropout=dropout,
             activation='gelu',
             batch_first=True,
-            norm_first=True  # Improves Transformer training stability.
+            norm_first=True
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.layer_norm = nn.LayerNorm(embedding_dim)
@@ -63,8 +59,7 @@ class SASRec(nn.Module):
         x = self.transformer(x, mask=causal_mask)
         x = self.layer_norm(x)
 
-        # Extract the final position for next-item prediction.
-        h = x[:, -1, :]  # [B, D]
+        h = x[:, -1, :]
 
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
         logits = torch.matmul(h, self.item_embedding(all_items).T)

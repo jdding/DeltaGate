@@ -8,13 +8,14 @@ Available models:
 - TiSASRec: Time interval-aware SASRec
 - DeltaGateSASRec: SASRec + Delta-Gate mechanism
 - DeltaGateGRU4Rec: GRU4Rec + Delta-Gate mechanism
+- DeltaGateBERT4Rec: BERT4Rec + Delta-Gate mechanism
 """
 
 from .sasrec import SASRec
 from .gru4rec import GRU4Rec
 from .bert4rec import BERT4Rec
 from .tisasrec import TiSASRec
-from .deltagate import DeltaGateSASRec, DeltaGateGRU4Rec
+from .deltagate import DeltaGateSASRec, DeltaGateGRU4Rec, DeltaGateBERT4Rec
 
 __all__ = [
     'SASRec',
@@ -23,4 +24,5 @@ __all__ = [
     'TiSASRec',
     'DeltaGateSASRec',
     'DeltaGateGRU4Rec',
+    'DeltaGateBERT4Rec',
 ]

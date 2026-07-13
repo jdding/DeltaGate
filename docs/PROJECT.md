@@ -9,7 +9,7 @@ backbone. The plugin uses the post-sequence gap length, `gap_days`, to route the
 final user representation between the historical sequence representation and a
 global prior.
 
-This public artifact is intended to support reviewer inspection of:
+This public artifact is intended to support inspection of:
 
 - model implementations for SASRec, GRU4Rec, BERT4Rec, TiSASRec, and DeltaGate
 - the training and full-ranking evaluation entrypoints
@@ -41,8 +41,9 @@ g = sigmoid(MLP([log1p(gap_days); h_personalized]))
 h_final = g * h_personalized + (1 - g) * h_global
 ```
 
-The public implementation includes DeltaGate variants for SASRec and GRU4Rec.
-The paper also reports DG-BERT4Rec results in the aggregated result tables.
+The public implementation includes DeltaGate variants for SASRec, GRU4Rec,
+and BERT4Rec. The bidirectional variant appends the extraction mask at the
+chronological end and applies the same output-layer gate.
 
 ## Data Contract
 
@@ -91,6 +92,7 @@ After placing processed data under `data/`, run training:
 python train.py \
     --data data/amazon_movies_tv_processed.pkl \
     --model deltagate-sasrec \
+    --backbone checkpoints/movies_tv_sasrec_seed42.pt \
     --embed-dim 128 \
     --max-len 50 \
     --lr 0.001 \
@@ -100,6 +102,10 @@ python train.py \
     --seed 42 \
     --device auto
 ```
+
+For all three DeltaGate plugin runs, `--backbone` is mandatory. The checkpoint is loaded
+before training, after which only `gate_mlp` and `global_prior` remain
+trainable; the sequence encoder and item embeddings are frozen.
 
 Evaluate a trained checkpoint:
 
@@ -123,7 +129,7 @@ Aggregated paper results are available in:
 
 The result summaries include macro-gap performance by dataset and model family.
 
-## Reviewer Checks
+## Lightweight Checks
 
 Recommended lightweight checks:
 
@@ -145,7 +151,12 @@ python -m py_compile train.py evaluate_offline.py data_adapter.py src/*.py tests
 - Processed dataset pickle files and checkpoints are not included.
 - Full experiment reproduction requires the processed data files described in
   `data/README.md`.
-- The repository is designed as a reviewer-facing code artifact, not as a
+- The exported DG-BERT4Rec class is schema- and forward-compatible with the
+  recovered RecSys checkpoint. The DG-BERT4Rec summaries under `results/` were
+  regenerated through the frozen-plugin path over three datasets and five
+  matched seeds; the recovered joint-training checkpoint is retained only as a
+  compatibility artifact.
+- The repository is designed as a paper-facing code artifact, not as a
   packaged Python library.
 
 ## Primary Result Pointer

@@ -10,6 +10,7 @@ Supports multiple model architectures:
 - tisasrec: Time Interval-aware SASRec
 - deltagate-sasrec: SASRec + Delta-Gate
 - deltagate-gru4rec: GRU4Rec + Delta-Gate
+- deltagate-bert4rec: BERT4Rec + Delta-Gate
 """
 
 import argparse
@@ -21,10 +22,17 @@ from functools import partial
 import os
 import sys
 
-# Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
+from src import (
+    SASRec,
+    GRU4Rec,
+    BERT4Rec,
+    TiSASRec,
+    DeltaGateSASRec,
+    DeltaGateGRU4Rec,
+    DeltaGateBERT4Rec,
+)
 
 BUCKET_NAMES = ['30-90d', '90-180d', '180-365d', '>365d']
 
@@ -42,7 +50,7 @@ def make_batch_standard(samples, max_len=50):
 
 
 def make_batch_tisasrec(samples, max_len=50):
-    """Batch for TiSASRec - uses ONLY intra_intervals."""
+    """Build a TiSASRec batch from intra-sequence intervals."""
     seqs, intra_intervals, targets, buckets = [], [], [], []
     for s in samples:
         seq = s['seq_idx'][-max_len:]
@@ -81,6 +89,25 @@ def make_batch_deltagate(samples, max_len=50):
         torch.FloatTensor(deltas),
         torch.LongTensor(targets),
         buckets
+    )
+
+
+def make_batch_deltagate_bert4rec(samples, max_len=50, mask_token=None):
+    """Build histories ending in the BERT4Rec extraction mask."""
+    seqs, deltas, targets, buckets = [], [], [], []
+    for sample in samples:
+        history = sample['seq_idx'][-(max_len - 1):]
+        seq = [0] * (max_len - len(history) - 1) + history + [mask_token]
+        seqs.append(seq)
+        deltas.append(sample.get('gap_days', 0.0))
+        targets.append(sample['target_idx'])
+        buckets.append(sample.get('bucket', 'short'))
+
+    return (
+        torch.LongTensor(seqs),
+        torch.FloatTensor(deltas),
+        torch.LongTensor(targets),
+        buckets,
     )
 
 
@@ -136,7 +163,6 @@ def evaluate(model, test_samples, model_type, max_len, device, mask_token=None):
                 seq, target = seq.to(device), target.to(device)
                 logits = model(seq)
                 
-                # BERT4Rec specifically returns [B, V], we just rank it
                 _, top10 = torch.topk(logits, 10, dim=-1)
                 top10_items = top10 + 1
             else:
@@ -144,6 +170,14 @@ def evaluate(model, test_samples, model_type, max_len, device, mask_token=None):
                     seq, intra, target, buckets = make_batch_tisasrec(batch, max_len)
                     seq, intra, target = seq.to(device), intra.to(device), target.to(device)
                     logits = model(seq, intra)
+                elif model_type == 'deltagate-bert4rec':
+                    seq, delta, target, buckets = make_batch_deltagate_bert4rec(
+                        batch,
+                        max_len,
+                        mask_token,
+                    )
+                    seq, delta, target = seq.to(device), delta.to(device), target.to(device)
+                    logits, _ = model(seq, delta)
                 elif model_type in ['deltagate-sasrec', 'deltagate-gru4rec']:
                     seq, delta, target, buckets = make_batch_deltagate(batch, max_len)
                     seq, delta, target = seq.to(device), delta.to(device), target.to(device)
@@ -190,12 +224,55 @@ def get_linear_schedule_with_warmup(optimizer, num_warmup_steps, num_training_st
     return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
 
+def load_and_freeze_deltagate_backbone(model, checkpoint_path):
+    """Load a pretrained backbone and leave only the gate and prior trainable."""
+    if not checkpoint_path:
+        raise ValueError("--backbone is required for DeltaGate plugin training")
+    if not os.path.exists(checkpoint_path):
+        raise FileNotFoundError(f"Backbone checkpoint not found: {checkpoint_path}")
+
+    state = torch.load(checkpoint_path, map_location='cpu')
+    if isinstance(state, dict) and 'model_state_dict' in state:
+        state = state['model_state_dict']
+
+    expected_state = model.state_dict()
+    if (
+        'output_bias' in state
+        and 'output_bias' in expected_state
+        and state['output_bias'].numel() + 1 == expected_state['output_bias'].numel()
+    ):
+        padded_bias = expected_state['output_bias'].clone()
+        padded_bias[:state['output_bias'].numel()] = state['output_bias']
+        state = dict(state)
+        state['output_bias'] = padded_bias
+
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    critical_missing = [
+        key for key in missing
+        if not (key.startswith('gate_mlp.') or key == 'global_prior')
+    ]
+    if critical_missing or unexpected:
+        raise RuntimeError(
+            "Backbone checkpoint is incompatible: "
+            f"missing={critical_missing}, unexpected={unexpected}"
+        )
+
+    for name, parameter in model.named_parameters():
+        parameter.requires_grad_(
+            name.startswith('gate_mlp.') or name == 'global_prior'
+        )
+
+    return [parameter for parameter in model.parameters() if parameter.requires_grad]
+
+
 def train(args):
     """Main training function."""
     print("=" * 70)
     print(f"Training: {args.model}")
     print("=" * 70)
 
+    if args.device == 'auto':
+        args.device = 'cuda' if torch.cuda.is_available() else 'cpu'
     device = torch.device(args.device)
     print(f"Device: {device}")
 
@@ -266,19 +343,37 @@ def train(args):
             hidden_size=args.embed_dim, dropout=args.dropout,
         )
         model_type = 'deltagate-gru4rec'
+    elif args.model == 'deltagate-bert4rec':
+        model = DeltaGateBERT4Rec(
+            item_num=item_vocab_size, embedding_dim=args.embed_dim,
+            num_heads=args.num_heads, num_layers=args.num_layers,
+            max_seq_len=args.max_len, dropout=args.dropout,
+            ablation_mode=args.ablation_mode,
+        )
+        model_type = 'deltagate-bert4rec'
     else:
         raise ValueError(f"Unknown model: {args.model}")
+
+    if model_type in ['deltagate-sasrec', 'deltagate-gru4rec', 'deltagate-bert4rec']:
+        trainable_parameters = load_and_freeze_deltagate_backbone(model, args.backbone)
+    else:
+        trainable_parameters = list(model.parameters())
 
     model = model.to(device)
     total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"  Trainable parameters: {total_params:,}")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(trainable_parameters, lr=args.lr)
     criterion = nn.CrossEntropyLoss(ignore_index=-1) if model_type == 'bert4rec' else nn.CrossEntropyLoss()
 
-    # Configure DataLoader and Collate Fn
     if model_type == 'tisasrec':
         collate_fn = partial(make_batch_tisasrec, max_len=args.max_len)
+    elif model_type == 'deltagate-bert4rec':
+        collate_fn = partial(
+            make_batch_deltagate_bert4rec,
+            max_len=args.max_len,
+            mask_token=model.mask_token,
+        )
     elif model_type in ['deltagate-sasrec', 'deltagate-gru4rec']:
         collate_fn = partial(make_batch_deltagate, max_len=args.max_len)
     elif model_type == 'bert4rec':
@@ -287,7 +382,7 @@ def train(args):
         collate_fn = partial(make_batch_standard, max_len=args.max_len)
 
     if is_streaming:
-        # Single-thread loading to prevent OOM from multi-process shard deserialization spikes
+        # Avoid simultaneous shard deserialization in multiple workers.
         train_loader = DataLoader(
             train_dataset,
             batch_size=args.batch_size,
@@ -304,9 +399,8 @@ def train(args):
             pin_memory=True
         )
 
-    # Configure Learning Rate Warmup
     total_steps = steps_per_epoch * args.epochs
-    warmup_steps = min(5000, int(0.05 * total_steps))  # Warmup for first 5% or 5000 steps
+    warmup_steps = min(5000, int(0.05 * total_steps))
     scheduler = get_linear_schedule_with_warmup(optimizer, warmup_steps, total_steps)
 
     print(f"\n[3] Training for {args.epochs} epochs (Warmup steps: {warmup_steps})...")
@@ -321,13 +415,12 @@ def train(args):
         for step, batch_data in enumerate(train_loader):
             optimizer.zero_grad()
             
-            # Unpack dynamically based on model type
             if model_type == 'tisasrec':
                 seq, intra, target, _ = batch_data
                 seq, intra, target = seq.to(device), intra.to(device), target.to(device)
                 logits = model(seq, intra)
                 loss = criterion(logits, target - 1)
-            elif model_type in ['deltagate-sasrec', 'deltagate-gru4rec']:
+            elif model_type in ['deltagate-sasrec', 'deltagate-gru4rec', 'deltagate-bert4rec']:
                 seq, delta, target, _ = batch_data
                 seq, delta, target = seq.to(device), delta.to(device), target.to(device)
                 logits, _ = model(seq, delta)
@@ -350,18 +443,15 @@ def train(args):
             
             total_loss += loss.item()
             
-            # Print status every 1000 steps
             if (step + 1) % 1000 == 0:
                 current_lr = scheduler.get_last_lr()[0]
                 print(f"    Step {step+1}/{steps_per_epoch} | Loss: {total_loss/(step+1):.4f} | LR: {current_lr:.2e}")
 
         avg_loss = total_loss / steps_per_epoch
 
-        # Evaluate at the end of epoch
-        mask_token = model.mask_token if model_type == 'bert4rec' else None
+        mask_token = model.mask_token if model_type in ['bert4rec', 'deltagate-bert4rec'] else None
         metrics = evaluate(model, test_samples, model_type, args.max_len, device, mask_token)
         
-        # Calculate Average Hit@10 across predefined buckets
         valid_buckets = [b for b in BUCKET_NAMES if f'Hit@10_{b}' in metrics and metrics[f'Hit@10_{b}'] > 0]
         if valid_buckets:
             avg_hit = np.mean([metrics[f'Hit@10_{b}'] for b in valid_buckets])
@@ -375,7 +465,6 @@ def train(args):
             best_metrics = metrics.copy()
             patience_counter = 0
 
-            # Save best model
             os.makedirs(os.path.dirname(args.output) if os.path.dirname(args.output) else '.', exist_ok=True)
             torch.save(model.state_dict(), args.output)
         else:
@@ -384,7 +473,6 @@ def train(args):
                 print(f"  Early stopping at epoch {epoch}")
                 break
 
-    # Print final results
     print("\n" + "=" * 70)
     print("FINAL RESULTS")
     print("=" * 70)
@@ -405,11 +493,14 @@ def main():
     # Data
     parser.add_argument('--data', type=str, required=True, help='Path to processed data pickle')
     parser.add_argument('--output', type=str, default='best_model.pt', help='Path to save model')
+    parser.add_argument('--backbone', type=str, default='',
+                        help='Pretrained backbone checkpoint required by DeltaGate plugin models')
 
     # Model
     parser.add_argument('--model', type=str, required=True,
                         choices=['sasrec', 'gru4rec', 'bert4rec', 'tisasrec',
-                                 'deltagate-sasrec', 'deltagate-gru4rec'],
+                                 'deltagate-sasrec', 'deltagate-gru4rec',
+                                 'deltagate-bert4rec'],
                         help='Model architecture')
 
     # Hyperparameters
@@ -427,7 +518,7 @@ def main():
     parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('--epochs', type=int, default=20, help='Number of epochs')
     parser.add_argument('--patience', type=int, default=3, help='Early stopping patience')
-    parser.add_argument('--device', type=str, default='cpu', help='Device (cpu/cuda/mps)')
+    parser.add_argument('--device', type=str, default='cpu', help='Device (auto/cpu/cuda/mps)')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--ablation_mode', type=str, default='none',
                         choices=['none', 'fixed_gate', 'prior_only'],

@@ -1,24 +1,12 @@
 #!/usr/bin/env python3
-"""
-GRU4Rec Implementation
-======================
-
-Session-based Recommendations with RNNs
-"""
+"""GRU4Rec backbone used in the experiments."""
 
 import torch
 import torch.nn as nn
 
 
 class GRU4Rec(nn.Module):
-    """
-    GRU4Rec: Session-based Recommendations with RNNs.
-
-    Architecture:
-    - Item embedding with padding
-    - GRU encoder
-    - Output projection
-    """
+    """GRU-based sequential recommender."""
 
     def __init__(
         self,
@@ -34,14 +22,12 @@ class GRU4Rec(nn.Module):
         self.embedding_dim = embedding_dim
         self.hidden_size = hidden_size
 
-        # Item embedding (0 is padding)
         self.item_embedding = nn.Embedding(
             num_embeddings=item_num + 1,
             embedding_dim=embedding_dim,
             padding_idx=0
         )
 
-        # GRU encoder
         self.gru = nn.GRU(
             embedding_dim,
             hidden_size,
@@ -55,36 +41,22 @@ class GRU4Rec(nn.Module):
         self._init_weights()
 
     def _init_weights(self):
-        """Initialize embeddings."""
         nn.init.normal_(self.item_embedding.weight, mean=0, std=0.01)
 
     def forward(self, seq: torch.Tensor):
-        """
-        Forward pass.
-
-        Args:
-            seq: [batch_size, seq_len] item sequence indices
-
-        Returns:
-            logits: [batch_size, item_num] scores over all items
-        """
-        # Embedding
-        x = self.item_embedding(seq)  # [B, L, D]
+        x = self.item_embedding(seq)
         x = self.dropout(x)
 
-        # GRU
-        h, _ = self.gru(x)  # [B, L, H]
-        h = h[:, -1, :]  # [B, H]
+        h, _ = self.gru(x)
+        h = h[:, -1, :]
 
-        # Compute scores
         all_items = torch.arange(1, self.item_num + 1, device=seq.device)
-        logits = torch.matmul(h, self.item_embedding(all_items).T)  # [B, item_num]
+        logits = torch.matmul(h, self.item_embedding(all_items).T)
 
         return logits
 
 
 if __name__ == '__main__':
-    # Quick test
     model = GRU4Rec(item_num=1000, embedding_dim=64, hidden_size=64)
     seq = torch.randint(1, 1001, (4, 50))
     logits = model(seq)

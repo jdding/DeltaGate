@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Offline Evaluation Script for SIGIR
-Calculates: Hit@10, NDCG@10, MRR@10, Catalog Coverage
-Extracts: Gate Vectors for Heatmap Visualization
-"""
+"""Offline ranking evaluation and DeltaGate representation export."""
 
 import argparse
 import numpy as np
@@ -14,8 +10,22 @@ from tqdm import tqdm
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from src import SASRec, GRU4Rec, BERT4Rec, TiSASRec, DeltaGateSASRec, DeltaGateGRU4Rec
-from train import make_batch_standard, make_batch_tisasrec, make_batch_deltagate, make_batch_bert4rec
+from src import (
+    SASRec,
+    GRU4Rec,
+    BERT4Rec,
+    TiSASRec,
+    DeltaGateSASRec,
+    DeltaGateGRU4Rec,
+    DeltaGateBERT4Rec,
+)
+from train import (
+    make_batch_standard,
+    make_batch_tisasrec,
+    make_batch_deltagate,
+    make_batch_deltagate_bert4rec,
+    make_batch_bert4rec,
+)
 
 BUCKET_NAMES = ['30-90d', '90-180d', '180-365d', '>365d']
 
@@ -32,14 +42,12 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Evaluating model: {args.model_path} on {device}")
 
-    # 1. Load Data
     with open(args.data, 'rb') as f:
         data = pickle.load(f)
     test_samples = data.get('test_samples', data.get('test_data', []))
     item_vocab_size = data.get('item_vocab_size', data.get('vocab_size'))
     print(f"Test samples: {len(test_samples)}, Vocab: {item_vocab_size}")
 
-    # 2. Init Model
     if args.model == 'sasrec':
         model = SASRec(item_num=item_vocab_size, embedding_dim=args.embed_dim, max_seq_len=args.max_len)
     elif args.model == 'gru4rec':
@@ -48,14 +56,25 @@ def main():
         model = BERT4Rec(item_num=item_vocab_size, embedding_dim=args.embed_dim, max_seq_len=args.max_len)
     elif args.model == 'deltagate-sasrec':
         model = DeltaGateSASRec(item_num=item_vocab_size, embedding_dim=args.embed_dim, max_seq_len=args.max_len, ablation_mode=args.ablation_mode)
+    elif args.model == 'deltagate-gru4rec':
+        model = DeltaGateGRU4Rec(item_num=item_vocab_size, embedding_dim=args.embed_dim, hidden_size=args.embed_dim)
+    elif args.model == 'deltagate-bert4rec':
+        model = DeltaGateBERT4Rec(
+            item_num=item_vocab_size,
+            embedding_dim=args.embed_dim,
+            max_seq_len=args.max_len,
+            ablation_mode=args.ablation_mode,
+        )
     else:
         raise ValueError("Model not supported for offline eval yet.")
 
-    model.load_state_dict(torch.load(args.model_path, map_location=device))
+    state = torch.load(args.model_path, map_location=device)
+    if isinstance(state, dict) and 'model_state_dict' in state:
+        state = state['model_state_dict']
+    model.load_state_dict(state)
     model.to(device)
     model.eval()
 
-    # 3. Setup Forward Hook for Gate Extraction (Only for DeltaGate)
     gate_vectors = []
     bucket_labels = []
     
@@ -64,7 +83,6 @@ def main():
             gate_vectors.append(output.detach().cpu().numpy())
         model.gate_mlp.register_forward_hook(gate_hook)
 
-    # 4. Evaluation Metrics Setup
     hits = {b: 0 for b in BUCKET_NAMES + ['short']}
     ndcgs = {b: 0 for b in BUCKET_NAMES + ['short']}
     mrrs = {b: 0 for b in BUCKET_NAMES + ['short']}
@@ -76,7 +94,16 @@ def main():
         for i in tqdm(range(0, len(test_samples), batch_size), desc="Evaluating"):
             batch = test_samples[i:i+batch_size]
 
-            if args.model == 'deltagate-sasrec':
+            if args.model == 'deltagate-bert4rec':
+                seq, delta, target, buckets = make_batch_deltagate_bert4rec(
+                    batch,
+                    args.max_len,
+                    model.mask_token,
+                )
+                seq, delta = seq.to(device), delta.to(device)
+                logits, _ = model(seq, delta)
+                bucket_labels.extend(buckets)
+            elif args.model in ['deltagate-sasrec', 'deltagate-gru4rec']:
                 seq, delta, target, buckets = make_batch_deltagate(batch, args.max_len)
                 seq, delta = seq.to(device), delta.to(device)
                 logits, _ = model(seq, delta)
@@ -107,7 +134,6 @@ def main():
                     mrrs[b] += 1.0 / rank
                 counts[b] += 1
 
-    # 5. Print & Save Results
     print("\n" + "="*50)
     print(f"OFFLINE EVALUATION RESULTS: {args.model}")
     print("="*50)
