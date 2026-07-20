@@ -40,6 +40,8 @@ class SASRec(nn.Module):
     def _init_weights(self):
         nn.init.normal_(self.item_embedding.weight, mean=0, std=0.01)
         nn.init.normal_(self.position_embedding.weight, mean=0, std=0.01)
+        with torch.no_grad():
+            self.item_embedding.weight[0].zero_()
 
     def forward(self, seq: torch.Tensor):
         batch_size, seq_len = seq.shape
@@ -47,6 +49,7 @@ class SASRec(nn.Module):
         item_emb = self.item_embedding(seq)
         positions = torch.arange(seq_len, device=seq.device).unsqueeze(0).expand(batch_size, -1)
         x = self.dropout(item_emb + self.position_embedding(positions))
+        x = x.masked_fill(seq.eq(0).unsqueeze(-1), 0.0)
 
         # Use a float causal mask with a valid diagonal to avoid all-masked rows.
         causal_mask = torch.triu(

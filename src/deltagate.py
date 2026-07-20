@@ -86,6 +86,8 @@ class DeltaGateSASRec(nn.Module):
     def _init_weights(self):
         nn.init.normal_(self.item_embedding.weight, mean=0, std=0.01)
         nn.init.normal_(self.position_embedding.weight, mean=0, std=0.01)
+        with torch.no_grad():
+            self.item_embedding.weight[0].zero_()
 
     def forward(self, seq: torch.Tensor, delta_t: torch.Tensor):
         """
@@ -107,6 +109,7 @@ class DeltaGateSASRec(nn.Module):
         pos_emb = self.position_embedding(positions)  # [B, L, D]
         x = item_emb + pos_emb  # [B, L, D]
         x = self.dropout(x)
+        x = x.masked_fill(seq.eq(0).unsqueeze(-1), 0.0)
 
         # A float causal mask avoids fully masked rows under left padding.
         causal_mask = torch.triu(

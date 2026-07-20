@@ -1,6 +1,7 @@
 ._*
 .DS_Store
 __MACOSX/
+.codegraph/
 __pycache__/
 *.py[cod]
 checkpoints/

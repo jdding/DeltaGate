@@ -200,7 +200,8 @@ in `results/results.json`, `results/results_all.json`, and
   title = {Zero-Observation User Reactivation with Gap-Driven Dimensional Gating},
   author = {Ding, Jiandong and Liu, Tianying and Liu, Fuyuan and Qin, Huijie and Wu, Tiandeng},
   booktitle = {Proceedings of the 20th ACM Conference on Recommender Systems},
-  year = {2026}
+  year = {2026},
+  doi = {10.1145/3773078.3831771}
 }
 ```
 

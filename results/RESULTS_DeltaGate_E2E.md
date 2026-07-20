@@ -41,11 +41,11 @@ plugin setting.
 | Model | short | 30-90d | 90-180d | 180-365d | >365d |
 |---|---:|---:|---:|---:|---:|
 | SASRec baseline | 0.1998 | 0.1099 | 0.0980 | 0.0778 | 0.0297 |
-| DG-SASRec plugin | 0.2166 | 0.1173 | 0.1099 | 0.0995 | 0.0573 |
+| DG-SASRec plugin | 0.2022 | 0.1044 | 0.0998 | 0.0838 | 0.0474 |
 | TimeConcat E2E | 0.2334 | 0.1215 | 0.1152 | 0.1087 | 0.0797 |
 | DeltaGate E2E | 0.2092 | 0.1169 | 0.1094 | 0.0998 | 0.0571 |
 
 DeltaGate E2E improves over the SASRec baseline but does not match the
 TimeConcat E2E accuracy on this dataset. The frozen-backbone plugin setting
-achieves similar macro-gap accuracy to DeltaGate E2E while avoiding backbone
+achieves lower macro-gap accuracy than DeltaGate E2E while avoiding backbone
 updates.
