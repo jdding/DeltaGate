@@ -14,6 +14,15 @@ python3 train.py --help
 python3 evaluate_offline.py --help
 ```
 
+For the exact paper protocol and its immutable input hashes, see:
+
+```bash
+python3 experiments/recsys2026/runners/train_sas_gru.py --help
+python3 experiments/recsys2026/runners/train_bert.py --help
+```
+
+Then follow `experiments/recsys2026/README.md`.
+
 An available historical DG-BERT4Rec checkpoint can be checked without data:
 
 ```bash

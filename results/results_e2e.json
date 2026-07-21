@@ -1,31 +1,113 @@
 {
   "timeconcat_e2e": {
     "description": "TimeConcat E2E (5-seed avg, Video Games)",
-    "seeds": [42, 123, 456, 789, 1024],
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1024
+    ],
     "per_seed": {
-      "42": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0788, "epochs": 20},
-      "123": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0774, "epochs": 22},
-      "456": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0821, "epochs": 22},
-      "789": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0789, "epochs": 19},
-      "1024": {"short": 0.2334, "30-90d": 0.1215, "90-180d": 0.1152, "180-365d": 0.1087, ">365d": 0.0814, "epochs": 22}
+      "42": {
+        "short": 0.23299699061780846,
+        "30-90d": 0.12240139887312998,
+        "90-180d": 0.11794871794871795,
+        "180-365d": 0.1088563787950291,
+        ">365d": 0.0789920724801812,
+        "epochs": 20
+      },
+      "123": {
+        "short": 0.23016463090812533,
+        "30-90d": 0.11579560909267535,
+        "90-180d": 0.11425641025641026,
+        "180-365d": 0.10586754758533899,
+        ">365d": 0.07738769346923367,
+        "epochs": 22
+      },
+      "456": {
+        "short": 0.23480261993273147,
+        "30-90d": 0.12278997474256849,
+        "90-180d": 0.1117948717948718,
+        "180-365d": 0.10681138901997797,
+        ">365d": 0.08220083050207626,
+        "epochs": 22
+      },
+      "789": {
+        "short": 0.234377765976279,
+        "30-90d": 0.12084709539537594,
+        "90-180d": 0.1158974358974359,
+        "180-365d": 0.1110586754758534,
+        ">365d": 0.07889769724424311,
+        "epochs": 19
+      },
+      "1024": {
+        "short": 0.23469640644361833,
+        "30-90d": 0.12551000582863805,
+        "90-180d": 0.1163076923076923,
+        "180-365d": 0.11121598238162655,
+        ">365d": 0.08135145337863345,
+        "epochs": 22
+      }
     },
     "avg_5seed": {
-      "short": 0.2334,
-      "30-90d": 0.1215,
-      "90-180d": 0.1152,
-      "180-365d": 0.1087,
-      ">365d": 0.0797
+      "180-365d": 0.10876199465156522,
+      "30-90d": 0.12146881678647756,
+      "90-180d": 0.11524102564102563,
+      ">365d": 0.07976594941487354,
+      "short": 0.2334076827757125
     }
   },
   "deltagate_e2e": {
     "description": "DeltaGate E2E (5-seed avg, Video Games)",
-    "seeds": [42, 123, 456, 789, 1024],
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1024
+    ],
     "per_seed": {
-      "42": {"short": 0.2078, "30-90d": 0.1156, "90-180d": 0.1089, "180-365d": 0.0999, ">365d": 0.0544, "epochs": 25},
-      "123": {"short": 0.2124, "30-90d": 0.1164, "90-180d": 0.1116, "180-365d": 0.1026, ">365d": 0.0554, "epochs": 28},
-      "456": {"short": 0.2084, "30-90d": 0.1177, "90-180d": 0.1069, "180-365d": 0.0931, ">365d": 0.0548, "epochs": 25},
-      "789": {"short": 0.2118, "30-90d": 0.1191, "90-180d": 0.1110, "180-365d": 0.1045, ">365d": 0.0632, "epochs": 27},
-      "1024": {"short": 0.2058, "30-90d": 0.1158, "90-180d": 0.1085, "180-365d": 0.0988, ">365d": 0.0578, "epochs": 23}
+      "42": {
+        "short": 0.2078,
+        "30-90d": 0.1156,
+        "90-180d": 0.1089,
+        "180-365d": 0.0999,
+        ">365d": 0.0544,
+        "epochs": 25
+      },
+      "123": {
+        "short": 0.2124,
+        "30-90d": 0.1164,
+        "90-180d": 0.1116,
+        "180-365d": 0.1026,
+        ">365d": 0.0554,
+        "epochs": 28
+      },
+      "456": {
+        "short": 0.2084,
+        "30-90d": 0.1177,
+        "90-180d": 0.1069,
+        "180-365d": 0.0931,
+        ">365d": 0.0548,
+        "epochs": 25
+      },
+      "789": {
+        "short": 0.2118,
+        "30-90d": 0.1191,
+        "90-180d": 0.111,
+        "180-365d": 0.1045,
+        ">365d": 0.0632,
+        "epochs": 27
+      },
+      "1024": {
+        "short": 0.2058,
+        "30-90d": 0.1158,
+        "90-180d": 0.1085,
+        "180-365d": 0.0988,
+        ">365d": 0.0578,
+        "epochs": 23
+      }
     },
     "avg_5seed": {
       "short": 0.2092,
@@ -39,31 +121,186 @@
     "description": "L2 distance from original SASRec checkpoint",
     "original_backbone_norm": 87.9009,
     "timeconcat": {
-      "42": {"l2": 107.9503, "relative_pct": 122.81},
-      "123": {"l2": 113.6568, "relative_pct": 129.30},
-      "456": {"l2": 107.4388, "relative_pct": 122.23},
-      "789": {"l2": 107.9884, "relative_pct": 122.85},
-      "1024": {"l2": 106.1384, "relative_pct": 120.75},
-      "avg": {"l2": 108.6345, "relative_pct": 123.09}
+      "42": {
+        "l2": 107.9503,
+        "relative_pct": 122.81
+      },
+      "123": {
+        "l2": 113.6568,
+        "relative_pct": 129.3
+      },
+      "456": {
+        "l2": 107.4388,
+        "relative_pct": 122.23
+      },
+      "789": {
+        "l2": 107.9884,
+        "relative_pct": 122.85
+      },
+      "1024": {
+        "l2": 106.1384,
+        "relative_pct": 120.75
+      },
+      "avg": {
+        "l2": 108.6345,
+        "relative_pct": 123.09
+      }
     },
     "deltagate": {
-      "42": {"l2": 80.8435, "relative_pct": 91.97},
-      "123": {"l2": 92.0901, "relative_pct": 104.77},
-      "456": {"l2": 91.8511, "relative_pct": 104.49},
-      "789": {"l2": 92.0188, "relative_pct": 104.68},
-      "1024": {"l2": 91.7631, "relative_pct": 104.39},
-      "avg": {"l2": 89.7133, "relative_pct": 102.06}
+      "42": {
+        "l2": 80.8435,
+        "relative_pct": 91.97
+      },
+      "123": {
+        "l2": 92.0901,
+        "relative_pct": 104.77
+      },
+      "456": {
+        "l2": 91.8511,
+        "relative_pct": 104.49
+      },
+      "789": {
+        "l2": 92.0188,
+        "relative_pct": 104.68
+      },
+      "1024": {
+        "l2": 91.7631,
+        "relative_pct": 104.39
+      },
+      "avg": {
+        "l2": 89.7133,
+        "relative_pct": 102.06
+      }
     }
   },
   "gate_entropy": {
     "description": "DeltaGate E2E gate distribution by bucket (seed=789, 10K samples)",
     "per_bucket": {
-      "short (<30d)": {"n": 4933, "mean_g": 0.8000, "std_g": 0.3839, "frac_closed": 0.173, "frac_open": 0.772},
-      "30-90d": {"n": 1024, "mean_g": 0.8210, "std_g": 0.3691, "frac_closed": 0.155, "frac_open": 0.797},
-      "90-180d": {"n": 915, "mean_g": 0.8264, "std_g": 0.3641, "frac_closed": 0.150, "frac_open": 0.802},
-      "180-365d": {"n": 1064, "mean_g": 0.8298, "std_g": 0.3621, "frac_closed": 0.148, "frac_open": 0.807},
-      ">365d": {"n": 2064, "mean_g": 0.8356, "std_g": 0.3603, "frac_closed": 0.148, "frac_open": 0.819}
+      "short (<30d)": {
+        "n": 4933,
+        "mean_g": 0.8,
+        "std_g": 0.3839,
+        "frac_closed": 0.173,
+        "frac_open": 0.772
+      },
+      "30-90d": {
+        "n": 1024,
+        "mean_g": 0.821,
+        "std_g": 0.3691,
+        "frac_closed": 0.155,
+        "frac_open": 0.797
+      },
+      "90-180d": {
+        "n": 915,
+        "mean_g": 0.8264,
+        "std_g": 0.3641,
+        "frac_closed": 0.15,
+        "frac_open": 0.802
+      },
+      "180-365d": {
+        "n": 1064,
+        "mean_g": 0.8298,
+        "std_g": 0.3621,
+        "frac_closed": 0.148,
+        "frac_open": 0.807
+      },
+      ">365d": {
+        "n": 2064,
+        "mean_g": 0.8356,
+        "std_g": 0.3603,
+        "frac_closed": 0.148,
+        "frac_open": 0.819
+      }
     },
     "note": "Gate value increases with delta_t in this E2E setting."
+  },
+  "item_embedding_drift": {
+    "description": "L2 distance of item embeddings from the archived SASRec reference checkpoint",
+    "reference_norm": 185.91465759277344,
+    "reference_checkpoint_sha256": "7f21b6a206d2d2bd394950cc4d27ba6290f2c93a29302a6334d3b537d3745a7f",
+    "timeconcat_e2e": {
+      "checkpoints": [
+        {
+          "path": "02_checkpoints/outputs_time_concat/video_games_s42/best_model.pt",
+          "seed": 42,
+          "sha256": "6dc40a0c4dbee9a2f770587fb5df5f1ac98e5d1888315150131115180b7bff7f"
+        },
+        {
+          "path": "02_checkpoints/outputs_time_concat/video_games_s123/best_model.pt",
+          "seed": 123,
+          "sha256": "b4fd105019c4a33994f4599e5393abce05864384d34d4a337908757a3f2b6f02"
+        },
+        {
+          "path": "02_checkpoints/outputs_time_concat/video_games_s456/best_model.pt",
+          "seed": 456,
+          "sha256": "191bec502d66af68a852b7bc3e598429921246e29ae50a3d2492e763954eb0e0"
+        },
+        {
+          "path": "02_checkpoints/outputs_time_concat/video_games_s789/best_model.pt",
+          "seed": 789,
+          "sha256": "784ff5d4c556d25e3d0938e89b0b4a3ba6d252c42f6d283e33ec4ef137cdce6e"
+        },
+        {
+          "path": "02_checkpoints/outputs_time_concat/video_games_s1024/best_model.pt",
+          "seed": 1024,
+          "sha256": "76208ee0cde23b6157f53b6707f823c8bf85b9d428219cc15042412877b5c3ca"
+        }
+      ],
+      "l2_mean": 259.7367828369141,
+      "l2_std_population": 7.53067397645704,
+      "l2_values": [
+        259.19122314453125,
+        274.3456115722656,
+        256.582763671875,
+        253.8428192138672,
+        254.72149658203125
+      ],
+      "relative_percent": 139.70753366086942
+    },
+    "deltagate_e2e": {
+      "checkpoints": [
+        {
+          "path": "02_checkpoints/outputs_deltagate_e2e/video_games_s42/best_model.pt",
+          "seed": 42,
+          "sha256": "f4fd4e0fa24dd6c8cc1eda1678f54b6edeead60a9d1e912c140948d56de65074"
+        },
+        {
+          "path": "02_checkpoints/outputs_deltagate_e2e/video_games_s123/best_model.pt",
+          "seed": 123,
+          "sha256": "b5b896cf11745d56af261567dc4caafe0e8f52ee3c0bc63fe1e50aed1c5762c6"
+        },
+        {
+          "path": "02_checkpoints/outputs_deltagate_e2e/video_games_s456/best_model.pt",
+          "seed": 456,
+          "sha256": "bdaa725966f81ab9d25ba0a2e5f3e11bbd5d8aa5e4ccde2dbb5814c4dfe60d84"
+        },
+        {
+          "path": "02_checkpoints/outputs_deltagate_e2e/video_games_s789/best_model.pt",
+          "seed": 789,
+          "sha256": "8a4f4ffe2f486afa424fc158582a1d27332ab83a06ae44ccf32516513b8cc086"
+        },
+        {
+          "path": "02_checkpoints/outputs_deltagate_e2e/video_games_s1024/best_model.pt",
+          "seed": 1024,
+          "sha256": "cd462629c88ffbb9ca2d346b7450590f2b194ef6cef02594ffbd5de0e3a2e9bf"
+        }
+      ],
+      "l2_mean": 192.15111389160157,
+      "l2_std_population": 0.8333199312975172,
+      "l2_values": [
+        193.46246337890625,
+        192.18179321289062,
+        192.48516845703125,
+        190.97006225585938,
+        191.6560821533203
+      ],
+      "relative_percent": 103.35447262716016
+    },
+    "deltagate_plugin_relative_percent": 0.0
+  },
+  "historical_selection_protocol": {
+    "final_30": "historical_held_out_test_selection",
+    "selection_limitation": "The accepted-paper pipeline has no released validation split. This repair preserves its held-out-test early-stopping protocol for direct comparability and does not claim an unbiased model-selection estimate.",
+    "unbiased_final_test": false
   }
 }

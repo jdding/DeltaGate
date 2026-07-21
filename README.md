@@ -35,6 +35,7 @@ dimension-wise fusion.
 | `data_adapter.py` | Loader for processed monolithic or sharded data |
 | `data/README.md` | Expected processed-data schema |
 | `results/` | Aggregated paper-result summaries and machine-readable tables |
+| `experiments/recsys2026/` | Exact audited runners, code snapshots, configs, and input manifests |
 | `tests/` | Smoke and checkpoint-compatibility checks |
 | `docs/PROJECT.md` | Additional artifact scope and reproduction notes |
 
@@ -102,6 +103,12 @@ Each sample should contain:
 See `data/README.md` for the detailed data contract.
 
 ## Training
+
+For exact paper-protocol reproduction, start with
+`experiments/recsys2026/README.md`. It preserves the eval-mode frozen-backbone
+fit, fixed Adam learning rate, gradient clipping, historical checkpoint
+selection rule, and fail-closed input hashes used by the claim-bearing runs.
+The root entrypoint below is intended for ordinary use on newly prepared data.
 
 Train a backbone first:
 
@@ -179,8 +186,9 @@ The `results/` directory contains aggregated Hit@10 and NDCG@10 summaries for:
 - Amazon CDs & Vinyl
 - Amazon Movies & TV
 
-Start with `results/PAPER_RESULTS.md`. Machine-readable summaries are provided
-in `results/results.json`, `results/results_all.json`, and
+Start with `results/PAPER_RESULTS.md`. The canonical audited claim surface is
+`results/formal_claims.json`; convenience summaries are also provided in
+`results/results.json`, `results/results_all.json`, and
 `results/results_e2e.json`.
 
 ## Scope Boundaries

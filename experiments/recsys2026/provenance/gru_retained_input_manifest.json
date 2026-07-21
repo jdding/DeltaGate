@@ -1,0 +1,618 @@
+{
+  "authorized_formal_runs": 30,
+  "code_revision": "a98c2f5703cb66cce8756c6cec8b6c9631041686",
+  "experiment_id": "recsys2026_frozen_dgsas_dggru_20260720",
+  "inputs": [
+    {
+      "bytes": 17052,
+      "kind": "runner",
+      "path": "10_recsys_camera_ready_frozen_dgsas_dggru_rerun/scripts/train_one.py",
+      "sha256": "fa3586fb553df871d79ef589cec978b52ccab0849a1360f25b4f2e6728a93169"
+    },
+    {
+      "bytes": 914,
+      "kind": "source",
+      "path": "09_recsys_camera_ready_protocol_v2/formal_refit_a98c2f5_remote/code/src/__init__.py",
+      "relative_path": "src/__init__.py",
+      "sha256": "abbf6b4e8694c9d509e70cc0561405ebea66220e22de923239ce3962963015de"
+    },
+    {
+      "bytes": 2375,
+      "kind": "source",
+      "path": "09_recsys_camera_ready_protocol_v2/formal_refit_a98c2f5_remote/code/src/sasrec.py",
+      "relative_path": "src/sasrec.py",
+      "sha256": "c60f4ead47c0f4ac37f0abf7c014db430179ecd50d48cbc8766687ec7a5a4a44"
+    },
+    {
+      "bytes": 1708,
+      "kind": "source",
+      "path": "09_recsys_camera_ready_protocol_v2/formal_refit_a98c2f5_remote/code/src/gru4rec.py",
+      "relative_path": "src/gru4rec.py",
+      "sha256": "0cea1aaf404fa3e654151903fdc9480bebfb243917504eacc297079024f5f66d"
+    },
+    {
+      "bytes": 15814,
+      "kind": "source",
+      "path": "09_recsys_camera_ready_protocol_v2/formal_refit_a98c2f5_remote/code/src/deltagate.py",
+      "relative_path": "src/deltagate.py",
+      "sha256": "508664672e0bb809bf99ec1afddfbd7977316393cfa4644324aa508e3c964753"
+    },
+    {
+      "bytes": 33387,
+      "kind": "source",
+      "path": "09_recsys_camera_ready_protocol_v2/formal_refit_a98c2f5_remote/code/train.py",
+      "relative_path": "train.py",
+      "sha256": "22a8e02dd0ae4cc80e27730b044d769b587941bd45148ec4fe52881639792bcd"
+    },
+    {
+      "bytes": 61290959,
+      "dataset": "video_games",
+      "item_vocab_size": 17408,
+      "kind": "data",
+      "path": "03_processed_data/amazon_vg_processed_metadata.pkl",
+      "sha256": "4e96d92eb1ff79bb080b3d2dcf4e2d8d4dba89d343f10f71e02a2589a34eaaba",
+      "test_samples": 55220,
+      "train_samples": 387125
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 10537677,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_amazon_45runs/sasrec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 42,
+      "sha256": "7f21b6a206d2d2bd394950cc4d27ba6290f2c93a29302a6334d3b537d3745a7f"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 10537711,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_amazon_45runs/sasrec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 123,
+      "sha256": "d7133e055608f2b90aaa3fa635a453dd566b7754ef54a0b92a2574078fb0540b"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 10537711,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_amazon_45runs/sasrec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 456,
+      "sha256": "1258e9f3e2913c21a84e3661e60cf868bb7b9ec438ccbf9f35178a5499f13d38"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 10537711,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_amazon_45runs/sasrec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 789,
+      "sha256": "f90ab66ff0daa784b2f7613eb9718de3fb17852421f2caabce8bf78ae66319f9"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 10537745,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_amazon_45runs/sasrec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 1024,
+      "sha256": "0bd18794ad4db2e794b9bc2d782ed84ddaf5c7e7688a3f62dd63fcb446c4552b"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 9312165,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_amazon_45runs/gru4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 42,
+      "sha256": "ca3272922262c85b744f582eaeef678ee2fbfd503bbef05625da9d3323a5bf60"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 9312173,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_amazon_45runs/gru4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 123,
+      "sha256": "169b8b7087a3abf32f71216c30dfad40046c5cd5c5a9bb1393075e8f38f584c8"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 9312173,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_amazon_45runs/gru4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 456,
+      "sha256": "46f9d5ffcc7c8ff47293f083b2eb4cd5e8ad6ce4d7cae2df7890ea95cc0707e6"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 9312173,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_amazon_45runs/gru4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 789,
+      "sha256": "2828bcfc037e49041922c4827fb9bbe141e2192d298070e481f4a6ec1ba04f2a"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 9312181,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_amazon_45runs/gru4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 17409,
+        "item_vocab_size": 17408,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 1024,
+      "sha256": "b845c8e5b5198718601d02e15999253acf10a5ec8c5d335dfce0f810f6bc56a6"
+    },
+    {
+      "bytes": 317097878,
+      "dataset": "cds_and_vinyl",
+      "item_vocab_size": 73713,
+      "kind": "data",
+      "path": "03_processed_data/cds_and_vinyl_processed.pkl",
+      "sha256": "fd2374db67b03c2a14e2cd665732141e1964d9c14b6851b6397189190f401244",
+      "test_samples": 112319,
+      "train_samples": 1218826
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 39365837,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/sasrec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 42,
+      "sha256": "fdcfc44abba01c16b13877112b797728784738cde6e9d27eddbf4dd7c6e66ffd"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 39365871,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/sasrec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 123,
+      "sha256": "9c6777ca42c59ceea2a100e892ecb41c1e7baad945ace2b951c733750e5babbe"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 39365871,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/sasrec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 456,
+      "sha256": "90714c9c91a7152873e962dd3e7957a9212c3ad7399c4f277f6f35d4dfae09dd"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 39365871,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/sasrec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 789,
+      "sha256": "44bbebe0d1c9751d1fddc3b4a3f01c93a96370244d7430ddfde6c53cf90b9dc2"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 39365905,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/sasrec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 1024,
+      "sha256": "b6cd7ae98d4738617f5881a0ae94953abd78542298ef9d5dc5e9c88a97c69876"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 38140325,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/gru4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 42,
+      "sha256": "9b39ab2857b565fe10f9f81feb052950002e3bd4b5ce3eb938248ee8e0c8dfad"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 38140333,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/gru4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 123,
+      "sha256": "923b2a93825aef320b26257a6348f12025193079a0450779f0510e5af4d0626a"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 38140333,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/gru4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 456,
+      "sha256": "9057d41d0c4e02d1346abd33aef5d55dd3f245c2f7df82b15156ced34c19ddea"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 38140333,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/gru4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 789,
+      "sha256": "217729805a856660be61cf0f81211d919bc3616e4deb5b611a70e0812e9551eb"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 38140341,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/gru4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 73714,
+        "item_vocab_size": 73713,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 1024,
+      "sha256": "3eeb1c4c81212ac5807b6f4495e77837795495129dea089efcb762b9bae91c01"
+    },
+    {
+      "bytes": 625857254,
+      "dataset": "movies_and_tv",
+      "item_vocab_size": 60175,
+      "kind": "data",
+      "path": "03_processed_data/movies_and_tv_processed.pkl",
+      "sha256": "4ae0fd9430aaab018768d767d2c847cb7e50d70b15c3d4a6bc848e827f244bb7",
+      "test_samples": 297498,
+      "train_samples": 2814911
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 32434381,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_movies_tv_45runs/sasrec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 42,
+      "sha256": "f5a23f911d5ec06a1ad709763478415005846574417665ed4ac85164ee7cfb51"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 32434415,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_movies_tv_45runs/sasrec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 123,
+      "sha256": "61bd0f7b2166181bc7967c2383f647c75a45639ffd5ccfc874eb167214541287"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 32434415,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_movies_tv_45runs/sasrec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 456,
+      "sha256": "49bf7b91bd40b1bb21ee847cdbe9ea4c6f39f09d23e0009162db24f0e63638ac"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 32434415,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_movies_tv_45runs/sasrec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 789,
+      "sha256": "42562fb4e83c5c1460355733fc9948e10aadbeb051d60f5d8f7a3b76c84a0f84"
+    },
+    {
+      "backbone_model": "sasrec",
+      "bytes": 32434449,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-sasrec",
+      "path": "02_checkpoints/models_movies_tv_45runs/sasrec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 28
+      },
+      "seed": 1024,
+      "sha256": "b1c1c7bfed6ceeff7d2b3db1cb3ca1f8f6e4cf9c95fcd766cbbc0db10dac4437"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 31208869,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_movies_tv_45runs/gru4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 42,
+      "sha256": "55d9a6eb63b671d9303b3507c7ea013b6ead272f324cf369925467c642378070"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 31208877,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_movies_tv_45runs/gru4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 123,
+      "sha256": "d2e06c7878ac2724ba2da1eb0495a53093fc6e1dab34fbc79e15426b87b6a09f"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 31208877,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_movies_tv_45runs/gru4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 456,
+      "sha256": "e1629cf24e056252c7d1b03e89dc930cc79ccce84fc33887df431ce8b1b76451"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 31208877,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_movies_tv_45runs/gru4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 789,
+      "sha256": "c01515d35d69b35b9b7ce0099ff077c7d0df80b1edbbec54b7fbc55eb0726594"
+    },
+    {
+      "backbone_model": "gru4rec",
+      "bytes": 31208885,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "model": "deltagate-gru4rec",
+      "path": "02_checkpoints/models_movies_tv_45runs/gru4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "hidden_size": 128,
+        "item_rows": 60176,
+        "item_vocab_size": 60175,
+        "num_layers": 1,
+        "tensor_count": 5
+      },
+      "seed": 1024,
+      "sha256": "c97671a901ed423c8d04e0c1c8198f141c5a3f6e657b52993793b7abd1d7c232"
+    }
+  ]
+}

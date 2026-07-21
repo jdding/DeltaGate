@@ -12,9 +12,9 @@ This note compares three adaptation regimes on Amazon Video Games:
 
 | Model | short Hit@10 | >365d Hit@10 | >365d NDCG@10 | Trainable Params | Gain per 1M Params |
 |---|---:|---:|---:|---:|---:|
-| SASRec baseline | 0.1998 | 0.0297 | 0.0140 | 0 | N/A |
-| TimeConcat E2E | 0.2334 | 0.0797 | 0.0195 | 2,648,320 | 0.0189 |
-| DG-SASRec plugin | 0.2022 | 0.0474 | 0.0227 | 66,048 | 0.2670 |
+| SASRec baseline | 0.1848 | 0.0311 | 0.0146 | 0 | N/A |
+| TimeConcat E2E | 0.2334 | 0.0798 | 0.0397 | 2,648,320 | 0.0184 |
+| DG-SASRec plugin | 0.2022 | 0.0474 | 0.0227 | 66,304 | 0.2448 |
 
 TimeConcat E2E obtains the highest absolute accuracy. DG-SASRec plugin obtains
 lower absolute accuracy but uses about 1/40 of the trainable parameters and
@@ -43,28 +43,29 @@ note does not use NDCG to rank the frozen plugin against end-to-end variants.
 
 | Model | Trainable Params | >365d Hit@10 Gain vs SASRec | Gain per 1M Params |
 |---|---:|---:|---:|
-| TimeConcat E2E | 2,648,320 | +0.0500 | 0.0189 |
-| DG-SASRec plugin | 66,048 | +0.0176 | 0.2670 |
+| TimeConcat E2E | 2,648,320 | +0.0486 | 0.0184 |
+| DG-SASRec plugin | 66,304 | +0.0162 | 0.2448 |
 
 ## Active-User Stability
 
 | Model | short Hit@10 | Gain vs SASRec |
 |---|---:|---:|
-| SASRec baseline | 0.1998 | 0.0% |
-| TimeConcat E2E | 0.2334 | +16.8% |
-| DG-SASRec plugin | 0.2022 | +1.2% |
+| SASRec baseline | 0.1848 | 0.0% |
+| TimeConcat E2E | 0.2334 | +26.3% |
+| DG-SASRec plugin | 0.2022 | +9.4% |
 
 TimeConcat improves the short-gap bucket more clearly; the frozen plugin remains close to the SASRec short-gap baseline while preserving zero backbone drift.
 
-## Backbone Drift
+## Item-Embedding Drift
 
-| Model | Backbone L2 Drift | Relative to Original Norm |
+| Model | Item-Embedding L2 Drift | Relative to Original Norm |
 |---|---:|---:|
-| TimeConcat E2E | 108.63 | 123.6% |
-| DeltaGate E2E | 89.71 | 102.1% |
+| TimeConcat E2E | 259.74 | 139.7% |
+| DeltaGate E2E | 192.15 | 103.4% |
 | DG-SASRec plugin | 0.00 | 0.0% |
 
-The plugin configuration leaves the pretrained backbone unchanged by design.
+The reference item-embedding norm is 185.91. The plugin configuration leaves
+the complete pretrained backbone unchanged by design.
 
 ## Interpretation
 

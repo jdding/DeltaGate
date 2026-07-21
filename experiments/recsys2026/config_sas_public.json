@@ -1,0 +1,49 @@
+{
+  "experiment_id": "recsys2026_corrected_frozen_dgsas_20260720",
+  "code_snapshot": "experiments/recsys2026/code_snapshots/sas_corrected",
+  "code_revision": "corrected-padmask-v1",
+  "models": {
+    "deltagate-sasrec": {
+      "backbone_model": "sasrec",
+      "checkpoint_pattern": "sasrec_seed{seed}_abl-none.pt"
+    }
+  },
+  "seeds": [42, 123, 456, 789, 1024],
+  "datasets": {
+    "video_games": {
+      "data": "data/amazon_video_games_processed.pkl",
+      "checkpoint_dir": "checkpoints/video_games",
+      "vocab_size": 17408,
+      "train_samples": 387125,
+      "test_samples": 55220
+    },
+    "cds_and_vinyl": {
+      "data": "data/amazon_cds_vinyl_processed.pkl",
+      "checkpoint_dir": "checkpoints/cds_and_vinyl",
+      "vocab_size": 73713,
+      "train_samples": 1218826,
+      "test_samples": 112319
+    },
+    "movies_and_tv": {
+      "data": "data/amazon_movies_tv_processed.pkl",
+      "checkpoint_dir": "checkpoints/movies_and_tv",
+      "vocab_size": 60175,
+      "train_samples": 2814911,
+      "test_samples": 297498
+    }
+  },
+  "hyperparameters": {
+    "embedding_dim": 128,
+    "num_heads": 2,
+    "sasrec_num_layers": 2,
+    "gru4rec_num_layers": 1,
+    "max_len": 50,
+    "dropout": 0.2,
+    "learning_rate": 0.001,
+    "epochs": 30,
+    "patience": 3,
+    "train_batch_size": 128,
+    "eval_batch_size": 512,
+    "gradient_clip_norm": 5.0
+  }
+}

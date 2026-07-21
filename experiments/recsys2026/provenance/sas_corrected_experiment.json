@@ -1,0 +1,65 @@
+{
+  "experiment_id": "recsys2026_corrected_frozen_dgsas_20260720",
+  "scope": "Replace only the 15 DG-SASRec runs whose cleaned snapshot dropped the checkpoint-compatible padding zeroing operation",
+  "code_snapshot": "11_recsys_camera_ready_corrected_dgsas_rerun/code",
+  "code_revision": "corrected-padmask-v1",
+  "models": {
+    "deltagate-sasrec": {
+      "backbone_model": "sasrec",
+      "checkpoint_pattern": "sasrec_seed{seed}_abl-none.pt"
+    }
+  },
+  "seeds": [42, 123, 456, 789, 1024],
+  "datasets": {
+    "video_games": {
+      "data": "03_processed_data/amazon_vg_processed_metadata.pkl",
+      "checkpoint_dir": "02_checkpoints/models_amazon_45runs",
+      "vocab_size": 17408,
+      "train_samples": 387125,
+      "test_samples": 55220
+    },
+    "cds_and_vinyl": {
+      "data": "03_processed_data/cds_and_vinyl_processed.pkl",
+      "checkpoint_dir": "11_recsys_camera_ready_corrected_dgsas_rerun/checkpoints/cds_sasrec",
+      "vocab_size": 73713,
+      "train_samples": 1218826,
+      "test_samples": 112319
+    },
+    "movies_and_tv": {
+      "data": "03_processed_data/movies_and_tv_processed.pkl",
+      "checkpoint_dir": "02_checkpoints/models_movies_tv_45runs",
+      "vocab_size": 60175,
+      "train_samples": 2814911,
+      "test_samples": 297498
+    }
+  },
+  "hyperparameters": {
+    "embedding_dim": 128,
+    "num_heads": 2,
+    "sasrec_num_layers": 2,
+    "gru4rec_num_layers": 1,
+    "max_len": 50,
+    "dropout": 0.2,
+    "learning_rate": 0.001,
+    "epochs": 30,
+    "patience": 3,
+    "train_batch_size": 128,
+    "eval_batch_size": 512,
+    "gradient_clip_norm": 5.0
+  },
+  "protocol": {
+    "ranking": "full catalog",
+    "selection_metric": "mean Hit@10 over 30-90d, 90-180d, 180-365d, and >365d on the original held-out leave-one-out set",
+    "selection_limitation": "The accepted-paper pipeline has no released validation split. This repair preserves its held-out-test early-stopping protocol for direct comparability and does not claim an unbiased model-selection estimate.",
+    "trainable_parameter_allowlist": [
+      "gate_mlp.0.weight",
+      "gate_mlp.0.bias",
+      "gate_mlp.2.weight",
+      "gate_mlp.2.bias",
+      "global_prior"
+    ],
+    "expected_trainable_parameters": 66304,
+    "authorized_formal_runs": 15,
+    "paper_update_rule": "Replace the DG-SASRec half only after all 15 corrected runs and the combined 30-run audit pass."
+  }
+}

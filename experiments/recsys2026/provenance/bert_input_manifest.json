@@ -1,0 +1,275 @@
+{
+  "experiment_id": "recsys2026_frozen_dgbert_20260712",
+  "inputs": [
+    {
+      "bytes": 61290959,
+      "dataset": "video_games",
+      "item_vocab_size": 17408,
+      "kind": "data",
+      "path": "03_processed_data/amazon_vg_processed_metadata.pkl",
+      "sha256": "4e96d92eb1ff79bb080b3d2dcf4e2d8d4dba89d343f10f71e02a2589a34eaaba",
+      "test_samples": 55220,
+      "train_samples": 387125
+    },
+    {
+      "bytes": 10608223,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_amazon_45runs/bert4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17410,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 42,
+      "sha256": "5474043e9f9db39f1e33e7777f36ca2440ea2567c604bc1b6ae28f66bc2ee0c2"
+    },
+    {
+      "bytes": 10608258,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_amazon_45runs/bert4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17410,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 123,
+      "sha256": "4db81a3ef11925779834d39ae107716c17cbe27241070a89d7fca8b2c57bfbf0"
+    },
+    {
+      "bytes": 10608258,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_amazon_45runs/bert4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17410,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 456,
+      "sha256": "82ea77a2b84e9ee04ffa4bd9d5f28dd7a0b0c9d23d0a185b5ca6374b05483135"
+    },
+    {
+      "bytes": 10608258,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_amazon_45runs/bert4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17410,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 789,
+      "sha256": "e9e2269c00a55ba2e4d5666ff814e52346fcd8249a8354abe3a29e95451227c1"
+    },
+    {
+      "bytes": 10608293,
+      "dataset": "video_games",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_amazon_45runs/bert4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 17410,
+        "item_vocab_size": 17408,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 1024,
+      "sha256": "4b9ffd061613976535f9954354661307957e0bbb2045f084b31a495a17687cb5"
+    },
+    {
+      "bytes": 317097878,
+      "dataset": "cds_and_vinyl",
+      "item_vocab_size": 73713,
+      "kind": "data",
+      "path": "03_processed_data/cds_and_vinyl_processed.pkl",
+      "sha256": "fd2374db67b03c2a14e2cd665732141e1964d9c14b6851b6397189190f401244",
+      "test_samples": 112319,
+      "train_samples": 1218826
+    },
+    {
+      "bytes": 39661599,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/bert4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73715,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 42,
+      "sha256": "91200b3575501bcb3ac3d3c8fe8146be2c54370f313621590bfeddfaf8cc5b79"
+    },
+    {
+      "bytes": 39661634,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/bert4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73715,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 123,
+      "sha256": "79582198ba95a034df6e8f69fdc73d930f8a92f4ac7dac3c8fc78c8d78b56a30"
+    },
+    {
+      "bytes": 39661634,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/bert4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73715,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 456,
+      "sha256": "daf0ac8a0f8d3729c675a2d988d8ce9f6d290ca705fa1db3d5c96276e452633a"
+    },
+    {
+      "bytes": 39661634,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/bert4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73715,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 789,
+      "sha256": "13a66c9718a2e859d9f451e39733ae424eb57d5cd956f2eee6f560ed6c6c2c59"
+    },
+    {
+      "bytes": 39661669,
+      "dataset": "cds_and_vinyl",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_cds_vinyl_45runs/bert4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 73715,
+        "item_vocab_size": 73713,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 1024,
+      "sha256": "90b9c27e7fa0a56b19e48035498c6bbfa723dc4cc31466e4c51445ad448194e0"
+    },
+    {
+      "bytes": 625857254,
+      "dataset": "movies_and_tv",
+      "item_vocab_size": 60175,
+      "kind": "data",
+      "path": "03_processed_data/movies_and_tv_processed.pkl",
+      "sha256": "4ae0fd9430aaab018768d767d2c847cb7e50d70b15c3d4a6bc848e827f244bb7",
+      "test_samples": 297498,
+      "train_samples": 2814911
+    },
+    {
+      "bytes": 32675999,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_movies_tv_45runs/bert4rec_seed42_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60177,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 42,
+      "sha256": "b0c902509ff56b115b19d54e9a7dff18f576578ecee4aede662b4a2082e5a9dd"
+    },
+    {
+      "bytes": 32676034,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_movies_tv_45runs/bert4rec_seed123_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60177,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 123,
+      "sha256": "3d8cd35c8bae8583f0e7532111b082b4ad1b5c96ac786832b1a85646e1b67304"
+    },
+    {
+      "bytes": 32676034,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_movies_tv_45runs/bert4rec_seed456_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60177,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 456,
+      "sha256": "0501fadd442217fb9a0bb315e722a196e47d2162a3f5136422bb6d297083a688"
+    },
+    {
+      "bytes": 32676034,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_movies_tv_45runs/bert4rec_seed789_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60177,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 789,
+      "sha256": "c476ebf95ca881e944fba978b8da5d02a7cf26fd91dfeb10252350cfa39c6f6e"
+    },
+    {
+      "bytes": 32676069,
+      "dataset": "movies_and_tv",
+      "kind": "backbone_checkpoint",
+      "path": "02_checkpoints/models_movies_tv_45runs/bert4rec_seed1024_abl-none.pt",
+      "schema": {
+        "embedding_dim": 128,
+        "item_rows": 60177,
+        "item_vocab_size": 60175,
+        "max_len": 50,
+        "num_layers": 2,
+        "tensor_count": 29
+      },
+      "seed": 1024,
+      "sha256": "e2c697f62b88a1dea7ba3c499c1027d8ac8d3ea779420198a40d7c52af8433bb"
+    }
+  ]
+}

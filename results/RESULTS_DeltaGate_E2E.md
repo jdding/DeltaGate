@@ -40,9 +40,9 @@ plugin setting.
 
 | Model | short | 30-90d | 90-180d | 180-365d | >365d |
 |---|---:|---:|---:|---:|---:|
-| SASRec baseline | 0.1998 | 0.1099 | 0.0980 | 0.0778 | 0.0297 |
+| SASRec baseline | 0.1848 | 0.0909 | 0.0837 | 0.0661 | 0.0311 |
 | DG-SASRec plugin | 0.2022 | 0.1044 | 0.0998 | 0.0838 | 0.0474 |
-| TimeConcat E2E | 0.2334 | 0.1215 | 0.1152 | 0.1087 | 0.0797 |
+| TimeConcat E2E | 0.2334 | 0.1215 | 0.1152 | 0.1088 | 0.0798 |
 | DeltaGate E2E | 0.2092 | 0.1169 | 0.1094 | 0.0998 | 0.0571 |
 
 DeltaGate E2E improves over the SASRec baseline but does not match the
