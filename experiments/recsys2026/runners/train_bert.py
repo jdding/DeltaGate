@@ -149,8 +149,26 @@ def evaluate(model, samples, max_len, batch_size, device):
     return metrics
 
 
+def resolve_code_root(repo_root):
+    """Return the directory that contains ``src/`` and ``train.py``.
+
+    The public snapshot is laid out at ``code_snapshots/bert``. The historical
+    runner looked for an ``anonymous_repo`` subdirectory of ``--repo-root``.
+    """
+    repo_root = Path(repo_root)
+    candidates = (repo_root, repo_root / "anonymous_repo")
+    for candidate in candidates:
+        if (candidate / "src" / "bert4rec.py").is_file() and (candidate / "train.py").is_file():
+            return candidate
+    raise FileNotFoundError(
+        "DG-BERT4Rec sources were not found under "
+        + " or ".join(str(candidate / "src") for candidate in candidates)
+    )
+
+
 def load_models(repo_root, item_num, backbone_path, device):
-    sys.path.insert(0, str(repo_root / "anonymous_repo"))
+    code_root = resolve_code_root(repo_root)
+    sys.path.insert(0, str(code_root))
     from src import BERT4Rec, DeltaGateBERT4Rec
     from train import load_and_freeze_deltagate_backbone
 
@@ -329,10 +347,10 @@ def main():
         "torch_version": torch.__version__,
         "runner_sha256": sha256_file(Path(__file__)),
         "bert4rec_source_sha256": sha256_file(
-            args.repo_root / "anonymous_repo/src/bert4rec.py"
+            resolve_code_root(args.repo_root) / "src/bert4rec.py"
         ),
         "deltagate_source_sha256": sha256_file(
-            args.repo_root / "anonymous_repo/src/deltagate.py"
+            resolve_code_root(args.repo_root) / "src/deltagate.py"
         ),
         "command_args": vars(args),
     }

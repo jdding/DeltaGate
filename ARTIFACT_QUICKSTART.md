@@ -30,4 +30,5 @@ python3 tests/check_dg_bert4rec_checkpoint.py --checkpoint PATH_TO_CHECKPOINT
 ```
 
 Processed-data schemas and full training commands are documented in
-`data/README.md` and `README.md`.
+`data/README.md` and `README.md`. Raw reviews, processed pickle files, and
+checkpoints are not in this repository, and the smoke test does not need them.
