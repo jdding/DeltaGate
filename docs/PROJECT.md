@@ -75,7 +75,7 @@ This artifact supports three levels of inspection.
 This level does not require the Amazon datasets:
 
 ```bash
-python tests/smoke_imports.py
+python3 tests/smoke_imports.py
 ```
 
 Expected result:
@@ -89,7 +89,7 @@ Smoke test passed.
 After placing processed data under `data/`, run training:
 
 ```bash
-python train.py \
+python3 train.py \
     --data data/amazon_movies_tv_processed.pkl \
     --model deltagate-sasrec \
     --backbone checkpoints/movies_tv_sasrec_seed42.pt \
@@ -110,7 +110,7 @@ trainable; the sequence encoder and item embeddings are frozen.
 Evaluate a trained checkpoint:
 
 ```bash
-python evaluate_offline.py \
+python3 evaluate_offline.py \
     --data data/amazon_movies_tv_processed.pkl \
     --model_path checkpoints/movies_tv_deltagate_sasrec_seed42.pt \
     --model deltagate-sasrec \
@@ -134,15 +134,15 @@ The result summaries include macro-gap performance by dataset and model family.
 Recommended lightweight checks:
 
 ```bash
-python tests/smoke_imports.py
-python train.py --help
-python evaluate_offline.py --help
+python3 tests/smoke_imports.py
+python3 train.py --help
+python3 evaluate_offline.py --help
 ```
 
 Optional static checks:
 
 ```bash
-python -m py_compile train.py evaluate_offline.py data_adapter.py src/*.py tests/smoke_imports.py
+python3 -m py_compile train.py evaluate_offline.py data_adapter.py src/*.py tests/smoke_imports.py
 ```
 
 ## Known Scope Boundaries

@@ -1,0 +1,69 @@
+cff-version: 1.2.0
+message: If you use this software, please cite the paper below.
+type: software
+title: DeltaGate
+abstract: >-
+  Frozen-backbone, gap-conditioned dimensional gate for zero-observation
+  user reactivation in sequential recommendation.
+authors:
+  - family-names: Ding
+    given-names: Jiandong
+    email: jdding@fudan.edu.cn
+    affiliation: Fudan University
+    orcid: "https://orcid.org/0000-0001-8123-9889"
+  - family-names: Liu
+    given-names: Tianying
+    email: liutianying2@huawei.com
+    affiliation: Huawei Technologies
+  - family-names: Liu
+    given-names: Fuyuan
+    email: liufuyuan2@huawei.com
+    affiliation: Huawei Technologies
+  - family-names: Qin
+    given-names: Huijie
+    email: qinhuijie@huawei.com
+    affiliation: Huawei Technologies
+  - family-names: Wu
+    given-names: Tiandeng
+    email: wutiandeng1@huawei.com
+    affiliation: Huawei Technologies
+identifiers:
+  - type: url
+    value: "https://arxiv.org/abs/2607.19802"
+    description: arXiv preprint of the paper
+repository-code: "https://github.com/jdding/DeltaGate"
+url: "https://jdding.github.io/deltagate"
+license: MIT
+keywords:
+  - recommender systems
+  - sequential recommendation
+  - user reactivation
+preferred-citation:
+  type: conference-paper
+  title: Zero-Observation User Reactivation with Gap-Driven Dimensional Gating
+  authors:
+    - family-names: Ding
+      given-names: Jiandong
+    - family-names: Liu
+      given-names: Tianying
+    - family-names: Liu
+      given-names: Fuyuan
+    - family-names: Qin
+      given-names: Huijie
+    - family-names: Wu
+      given-names: Tiandeng
+  year: 2026
+  collection-title: Proceedings of the 20th ACM Conference on Recommender Systems
+  conference:
+    name: 20th ACM Conference on Recommender Systems
+    city: Minneapolis
+    date-start: "2026-09-27"
+    date-end: "2026-10-02"
+  publisher:
+    name: Association for Computing Machinery
+  doi: 10.1145/3773078.3831771
+  url: "https://doi.org/10.1145/3773078.3831771"
+  identifiers:
+    - type: other
+      value: "arXiv:2607.19802"
+      description: arXiv identifier

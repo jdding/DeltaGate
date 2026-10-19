@@ -16,6 +16,15 @@ The JSON files in `provenance/` are immutable records of the actual data,
 backbone checkpoints, source files, seeds, and hyperparameters. The repository
 does not redistribute the processed Amazon files or pretrained checkpoints, so
 their hashes can be verified only after those inputs are prepared locally.
+This repository also does not include a script that builds those files.
+
+Run the runners in this directory, not `code_snapshots/*/train.py`. Those
+snapshot scripts import a `protocol` module that is not published. The retained
+GRU snapshot's `src/__init__.py` also imports `bert4rec`, `tisasrec`, and
+`variants`, which are not in this tree. `runners/train_sas_gru.py` loads the
+hashed `sasrec.py`, `gru4rec.py`, and `deltagate.py` files directly.
+`runners/train_bert.py` accepts either `code_snapshots/bert` or a historical
+checkout whose sources live in an `anonymous_repo` subdirectory.
 
 ## Required Layout
 

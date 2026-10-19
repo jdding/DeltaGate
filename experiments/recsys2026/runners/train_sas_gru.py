@@ -4,6 +4,7 @@
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import pickle
 import random
@@ -229,9 +230,43 @@ def load_and_freeze_deltagate_backbone(model, checkpoint_path):
     ]
 
 
+def load_snapshot_classes(source_root):
+    """Load the hashed snapshot modules by file path.
+
+    The retained GRU snapshot's ``src/__init__.py`` also imports ``bert4rec``,
+    ``tisasrec``, and ``variants``, which are not in this public tree. The
+    runner only needs the modules recorded in the input manifest.
+    """
+    source_root = Path(source_root)
+    modules = {}
+    classes = {}
+    for filename, class_names in (
+        ("sasrec.py", ("SASRec",)),
+        ("gru4rec.py", ("GRU4Rec",)),
+        ("deltagate.py", ("DeltaGateSASRec", "DeltaGateGRU4Rec")),
+    ):
+        path = source_root / "src" / filename
+        module_name = f"deltagate_snapshot_{source_root.name}_{filename[:-3]}"
+        module = modules.get(filename)
+        if module is None:
+            spec = importlib.util.spec_from_file_location(module_name, path)
+            if spec is None or spec.loader is None:
+                raise ImportError(f"Cannot load snapshot module: {path}")
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module
+            spec.loader.exec_module(module)
+            modules[filename] = module
+        for class_name in class_names:
+            classes[class_name] = getattr(module, class_name)
+    return classes
+
+
 def load_models(source_root, model_name, item_num, backbone_path, hp, device):
-    sys.path.insert(0, str(source_root))
-    from src import DeltaGateGRU4Rec, DeltaGateSASRec, GRU4Rec, SASRec
+    classes = load_snapshot_classes(source_root)
+    DeltaGateGRU4Rec = classes["DeltaGateGRU4Rec"]
+    DeltaGateSASRec = classes["DeltaGateSASRec"]
+    GRU4Rec = classes["GRU4Rec"]
+    SASRec = classes["SASRec"]
 
     if model_name == "deltagate-sasrec":
         kwargs = dict(

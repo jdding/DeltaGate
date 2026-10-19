@@ -1,7 +1,20 @@
 # Data Directory
 
-Place processed Amazon review data files in this directory before running the
-training or evaluation scripts.
+Raw Amazon review files, processed pickle files, training shards, and
+checkpoints are not in this repository. There is no download or preprocessing
+script here. The paper uses three Amazon Product Reviews (2018) categories
+(Video Games, CDs & Vinyl, and Movies & TV) after iterative 5-core filtering,
+then the Gap-Synthesize protocol described in the paper: user-level
+chronological leave-one-out, the natural gap before the held-out target,
+pre-gap histories of at least five items, and the buckets `<30d`, `30-90d`,
+`90-180d`, `180-365d`, and `>365d`.
+
+Build files that match the schema below and place them in this directory
+before running the training or evaluation scripts. The paper's processed
+counts are recorded in `experiments/recsys2026/config_sas_public.json`.
+Audited reruns also require backbone checkpoints whose SHA-256 hashes are
+listed in `experiments/recsys2026/provenance/`; those checkpoints are not
+released here.
 
 Expected files:
 
